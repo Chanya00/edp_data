@@ -516,6 +516,15 @@ const state = { div:'', dept:'', sect:'', plant:'', cust:'', site:'', grp:'all',
 let chartU = null, chartS = null;
 let detailPage = 1;
 const DETAIL_PAGE_SIZE = 100;
+const expandedDivisions = new Set();
+const COLLAPSIBLE_DIVISIONS = [
+  'CPAC Metro',
+  'CPAC East',
+  'CPAC Northeast',
+  'RMC - South Chain',
+  'CPAC North',
+  'CPAC West'
+];
 
 // ─── Precomputed cascade maps ─────────────────────────────────────────────────
 const divDepts = {};       // divName → Set(deptName)
@@ -901,6 +910,115 @@ function renderTable(data) {
       <td class="px-4 py-2.5 text-right text-blue-700 tabular-nums font-medium">${avg}</td>
     </tr>`;
   }).join('');
+}
+
+function toggleSummaryDivision(name) {
+  if (expandedDivisions.has(name)) expandedDivisions.delete(name);
+  else expandedDivisions.add(name);
+  renderTable(getFiltered());
+}
+
+function renderTable(data) {
+  let groupFn, lvl;
+  if (!state.div)   { groupFn = r => DV[r[FDV]]; lvl = 'Division'; }
+  else if (!state.dept) { groupFn = r => DE[r[FDE]]; lvl = 'Department'; }
+  else if (!state.sect) { groupFn = r => SE[r[FSE]]; lvl = 'Section'; }
+  else              { groupFn = r => PL[r[FPL]]; lvl = 'Plant'; }
+  document.getElementById('table-level').textContent = lvl;
+
+  const blankLabel = '(ไม่ระบุ)';
+  const emptyGroup = () => ({ total:0, unSDA:0, unPaper:0, unEDP:0, signed:0, dsSum:0 });
+  const addRecord = (g, r) => {
+    g.total++;
+    if (r[FDS] === null || r[FDS] === undefined) {
+      if      (r[FGR] === 0) g.unSDA++;
+      else if (r[FGR] === 1) g.unPaper++;
+      else                   g.unEDP++;
+    } else {
+      g.signed++;
+      g.dsSum += r[FDS];
+    }
+  };
+  const aggregateBy = keyFn => {
+    const groups = {};
+    data.forEach(r => {
+      const k = keyFn(r) || blankLabel;
+      if (!groups[k]) groups[k] = emptyGroup();
+      addRecord(groups[k], r);
+    });
+    return groups;
+  };
+  const unsignedCount = g => g.unSDA + g.unPaper + g.unEDP;
+  const sortGroups = entries => entries.sort((a,b) => unsignedCount(b[1]) - unsignedCount(a[1]));
+  const escAttr = value => String(value).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+
+  const bar = p => {
+    const col = p>=80 ? 'bg-green-500 text-green-600' : p>=50 ? 'bg-amber-400 text-amber-600' : 'bg-red-400 text-red-600';
+    const [bg, tc] = col.split(' ');
+    return `<div class="flex items-center gap-1.5 justify-end">
+      <div class="w-14 h-1.5 bg-slate-100 rounded-full overflow-hidden">
+        <div class="h-full rounded-full ${bg}" style="width:${Math.min(p,100).toFixed(0)}%"></div>
+      </div>
+      <span class="font-semibold ${tc} tabular-nums w-12 text-right">${p.toFixed(1)}%</span>
+    </div>`;
+  };
+
+  const rowHtml = (g, nameCell, rowClass = 'border-b border-slate-100') => {
+    const unsigned = unsignedCount(g);
+    const pct = g.total > 0 ? g.signed / g.total * 100 : 0;
+    const avg = g.signed > 0 ? (g.dsSum / g.signed).toFixed(1) : '-';
+    return `<tr class="${rowClass}">
+      ${nameCell}
+      <td class="px-4 py-2.5 text-right text-slate-600 tabular-nums">${fmt(g.total)}</td>
+      <td class="px-4 py-2.5 text-right tabular-nums font-bold text-red-600">${fmt(unsigned)}</td>
+      <td class="px-4 py-2.5 text-right text-blue-600 tabular-nums">${fmt(g.unSDA)}</td>
+      <td class="px-4 py-2.5 text-right text-amber-600 tabular-nums">${fmt(g.unPaper)}</td>
+      <td class="px-4 py-2.5 text-right text-emerald-600 tabular-nums">${fmt(g.unEDP)}</td>
+      <td class="px-4 py-2.5 text-right text-green-600 tabular-nums">${fmt(g.signed)}</td>
+      <td class="px-4 py-2.5">${bar(pct)}</td>
+      <td class="px-4 py-2.5 text-right text-blue-700 tabular-nums font-medium">${avg}</td>
+    </tr>`;
+  };
+
+  if (!state.div) {
+    const divisionGroups = aggregateBy(r => DV[r[FDV]]);
+    const orderedDivisions = COLLAPSIBLE_DIVISIONS
+      .filter(name => divisionGroups[name])
+      .map(name => [name, divisionGroups[name]])
+      .concat(sortGroups(Object.entries(divisionGroups).filter(([name]) => !COLLAPSIBLE_DIVISIONS.includes(name))));
+
+    document.getElementById('summary-table').innerHTML = orderedDivisions.map(([name, g]) => {
+      const isOpen = expandedDivisions.has(name);
+      const icon = isOpen ? '&#9662;' : '&#9656;';
+      const deptGroups = aggregateBy(r => DV[r[FDV]] === name ? DE[r[FDE]] : '');
+      delete deptGroups[blankLabel];
+      const deptRows = isOpen ? sortGroups(Object.entries(deptGroups)).map(([deptName, deptGroup]) => rowHtml(
+        deptGroup,
+        `<td class="px-4 py-2.5 text-slate-700 max-w-xs truncate bg-slate-50" title="${escAttr(deptName)}">
+          <span class="inline-block w-8"></span><span class="text-slate-400">Dept</span>
+          <span class="font-medium ml-1">${deptName}</span>
+        </td>`,
+        'border-b border-slate-100 bg-slate-50'
+      )).join('') : '';
+
+      return rowHtml(
+        g,
+        `<td class="px-4 py-2.5 font-semibold text-slate-800 max-w-xs truncate" title="${escAttr(name)}">
+          <button type="button" class="inline-flex items-center gap-2 hover:text-blue-600" onclick="toggleSummaryDivision('${escAttr(name)}')" aria-expanded="${isOpen}">
+            <span class="inline-block w-4 text-slate-400">${icon}</span><span>${name}</span>
+          </button>
+        </td>`,
+        'border-b border-slate-100 bg-white'
+      ) + deptRows;
+    }).join('');
+    return;
+  }
+
+  const rows = sortGroups(Object.entries(aggregateBy(groupFn)));
+  document.getElementById('summary-table').innerHTML = rows.map(([name, g]) => rowHtml(
+    g,
+    `<td class="px-4 py-2.5 font-medium text-slate-800 max-w-xs truncate" title="${escAttr(name)}">${name}</td>`
+  )).join('');
 }
 
 function renderDetailTable(data) {
