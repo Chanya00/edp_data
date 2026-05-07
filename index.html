@@ -950,6 +950,7 @@ function renderTable(data) {
   };
   const unsignedCount = g => g.unSDA + g.unPaper + g.unEDP;
   const sortGroups = entries => entries.sort((a,b) => unsignedCount(b[1]) - unsignedCount(a[1]));
+  const sortDeptEntries = entries => entries.sort(([a], [b]) => a.localeCompare(b, undefined, { numeric:true, sensitivity:'base' }));
   const escAttr = value => String(value).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
 
   const bar = p => {
@@ -992,7 +993,7 @@ function renderTable(data) {
       const icon = isOpen ? '&#9662;' : '&#9656;';
       const deptGroups = aggregateBy(r => DV[r[FDV]] === name ? DE[r[FDE]] : '');
       delete deptGroups[blankLabel];
-      const deptEntries = sortGroups(Object.entries(deptGroups));
+      const deptEntries = sortDeptEntries(Object.entries(deptGroups));
       const maxDeptUnsigned = deptEntries.reduce((max, [, deptGroup]) => Math.max(max, unsignedCount(deptGroup)), 0);
       const deptRows = isOpen ? deptEntries.map(([deptName, deptGroup]) => {
         const isTopUnsigned = unsignedCount(deptGroup) === maxDeptUnsigned && maxDeptUnsigned > 0;
