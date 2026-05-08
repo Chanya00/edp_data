@@ -4,13 +4,13 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CPAC eDP — DP Signing Tracker</title>
-<link href="./CPAC eDP — DP Signing Tracker_files/css2" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="./CPAC eDP — DP Signing Tracker_files/saved_resource"></script>
 <script src="./CPAC eDP — DP Signing Tracker_files/chart.umd.min.js.download"></script>
 <style>
   *, *::before, *::after { box-sizing: border-box; }
-  body { font-family: 'Sarabun', sans-serif; margin: 0; background: #f1f5f9; color: #0f172a; }
-  select, input, button { font-family: 'Sarabun', sans-serif; }
+  body { font-family: 'Noto Sans Thai', sans-serif; margin: 0; background: #f1f5f9; color: #0f172a; }
+  select, input, button { font-family: 'Noto Sans Thai', sans-serif; }
   .grp-btn.active  { background: #1e293b; color: #fff; }
   .grp-btn:not(.active) { background: #fff; color: #475569; }
   .grp-btn:not(.active):hover { background: #f8fafc; }
@@ -799,7 +799,7 @@ const BAR_VALUE_LABELS = {
   afterDatasetsDraw(chart) {
     const { ctx } = chart;
     ctx.save();
-    ctx.font = 'bold 11px Sarabun, sans-serif';
+    ctx.font = 'bold 11px Noto Sans Thai, sans-serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
 
