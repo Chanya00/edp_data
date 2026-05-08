@@ -9,7 +9,7 @@
 <script src="./CPAC eDP — DP Signing Tracker_files/chart.umd.min.js.download"></script>
 <style>
   *, *::before, *::after { box-sizing: border-box; }
-  body { font-family: 'Noto Sans Thai', sans-serif; margin: 0; background: #f1f5f9; color: #0f172a; }
+  body { font-family: 'Noto Sans Thai', sans-serif; margin: 0; background: #f7fcff; color: #0f172a; }
   select, input, button { font-family: 'Noto Sans Thai', sans-serif; }
   .grp-btn.active  { background: #1e293b; color: #fff; }
   .grp-btn:not(.active) { background: #fff; color: #475569; }
@@ -56,10 +56,10 @@
 </header>
 
 <!-- FILTER BAR -->
-<div class="border-b border-slate-200 px-6 py-2.5 flex flex-wrap gap-x-3 gap-y-2 items-center" style="background-color:#5C9DC0">
+<div class="border-b border-slate-200 px-6 py-2.5 flex flex-wrap gap-x-3 gap-y-2 items-center" style="background-color:#00bdf8">
 
   <!-- Logo -->
-  <img src="image.png" alt="CPAC Logo" class="h-10 w-auto flex-shrink-0 mr-3">
+  <img src="image_up.png" alt="CPAC Logo" class="h-10 w-auto flex-shrink-0 mr-3">
 
   <!-- Organization cascade: Division → Dept → Section → Plant -->
   <div class="flex items-center gap-1.5">
@@ -111,7 +111,7 @@
 <!-- KPI CARDS -->
 <div class="grid grid-cols-2 lg:grid-cols-5 gap-3 px-6 pt-4 pb-3">
   <div class="bg-white rounded-lg p-4 shadow-sm border border-slate-200">
-    <p class="text-xs font-semibold text-slate-500 uppercase tracking-wide">DP ทั้งหมด</p>
+    <p class="text-sm font-semibold text-slate-500 uppercase tracking-wide">DP ทั้งหมด</p>
     <p id="kpi-total" class="text-3xl font-bold text-slate-900 mt-1.5 tabular-nums">234,556</p>
     <div class="flex flex-wrap gap-1 mt-1.5">
       <span id="kpi-n-sda" class="text-xs badge-sda   px-1.5 py-0.5 rounded font-medium">SDA: 24,720</span>
@@ -120,7 +120,7 @@
     </div>
   </div>
   <div class="bg-white rounded-lg p-4 shadow-sm border border-red-100">
-    <p id="label-kpi-unsigned-title" class="text-xs font-semibold text-red-400 uppercase tracking-wide">⚠ ยังไม่ลงนาม</p>
+    <p id="label-kpi-unsigned-title" class="text-sm font-semibold text-red-400 uppercase tracking-wide">⚠ ยังไม่ลงนาม</p>
     <p id="kpi-unsigned" class="text-3xl font-bold text-red-600 mt-1.5 tabular-nums">197,456</p>
     <div class="flex gap-1.5 mt-1.5">
       <span id="kpi-unsigned-pct" class="text-xs bg-red-50 text-red-500 px-1.5 py-0.5 rounded font-semibold">84.2%</span>
@@ -128,21 +128,32 @@
     </div>
   </div>
   <div class="bg-white rounded-lg p-4 shadow-sm border border-green-100">
-    <p id="label-kpi-signed-title" class="text-xs font-semibold text-green-500 uppercase tracking-wide">✓ ลงนามแล้ว</p>
+    <p id="label-kpi-signed-title" class="text-sm font-semibold text-green-500 uppercase tracking-wide">✓ ลงนามแล้ว</p>
     <p id="kpi-signed" class="text-3xl font-bold text-green-600 mt-1.5 tabular-nums">37,100</p>
     <div class="flex gap-1.5 mt-1.5">
       <span id="kpi-signed-pct" class="text-xs bg-green-50 text-green-600 px-1.5 py-0.5 rounded font-semibold">15.8%</span>
     </div>
   </div>
   <div class="bg-white rounded-lg p-4 shadow-sm border border-blue-100">
-    <p id="label-kpi-avgdays-title" class="text-xs font-semibold text-blue-400 uppercase tracking-wide">เฉลี่ยวันลงนาม</p>
+    <p id="label-kpi-avgdays-title" class="text-sm font-semibold text-blue-400 uppercase tracking-wide">เฉลี่ยวันลงนาม</p>
     <p id="kpi-avgdays" class="text-3xl font-bold text-blue-600 mt-1.5 tabular-nums">1.6</p>
     <p id="label-kpi-avgdays-desc" class="text-xs text-slate-400 mt-1.5">วัน (signed − dp_date)</p>
   </div>
-  <div class="bg-white rounded-lg p-4 shadow-sm border border-slate-200">
-    <p class="text-xs font-semibold text-slate-500 uppercase tracking-wide">เฉลี่ยวัน (ไม่ลง)</p>
-    <p id="kpi-avg-un-big" class="text-3xl font-bold text-orange-500 mt-1.5 tabular-nums">49.8</p>
-    <p class="text-xs text-slate-400 mt-1.5">วัน นับจากออก DP</p>
+  <div class="flex flex-col gap-2">
+    <div class="flex items-center justify-end gap-1.5">
+      <span class="text-sm font-semibold text-slate-500 uppercase tracking-wide">ประเภท DP</span>
+      <div class="flex rounded border border-slate-300 overflow-hidden text-sm">
+        <button data-grp="all" class="grp-btn active px-3 py-1.5 font-medium border-r border-slate-300">ทั้งหมด</button>
+        <button data-grp="sda" class="grp-btn px-3 py-1.5 font-medium border-r border-slate-300">SDA</button>
+        <button data-grp="paper" class="grp-btn px-3 py-1.5 font-medium border-r border-slate-300">Paper</button>
+        <button data-grp="edp" class="grp-btn px-3 py-1.5 font-medium">EDP</button>
+      </div>
+    </div>
+    <div class="bg-white rounded-lg p-4 shadow-sm border border-slate-200">
+      <p class="text-sm font-semibold text-slate-500 uppercase tracking-wide">เฉลี่ยวัน (ไม่ลง)</p>
+      <p id="kpi-avg-un-big" class="text-3xl font-bold text-orange-500 mt-1.5 tabular-nums">49.8</p>
+      <p class="text-xs text-slate-400 mt-1.5">วัน นับจากออก DP</p>
+    </div>
   </div>
 </div>
 
@@ -1115,6 +1126,15 @@ function formatDateSearch(dateStr) {
   return `${d}/${mo}/${y} ${m[1]}/${m[2]}/${y}`;
 }
 
+function formatDateDDMMYYYY(dateStr) {
+  const m = (dateStr || '').match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+  if (!m) return dateStr || '';
+  const d = String(m[1]).padStart(2, '0');
+  const mo = String(m[2]).padStart(2, '0');
+  const y = m[3];
+  return `${d}/${mo}/${y}`;
+}
+
 function filterDetailData(data) {
   const raw = state.detailSearch.trim().toLowerCase();
   if (!raw) return data;
@@ -1147,7 +1167,7 @@ function renderDetailTable(data) {
     const days = isSigned ? r[FDS] : r[FDU];
     return `<tr class="border-b border-slate-100">
       <td class="px-4 py-2.5 font-medium text-slate-800 tabular-nums whitespace-nowrap border-r border-slate-200">${r[FDPNO] || ''}</td>
-      <td class="px-4 py-2.5 text-slate-600 whitespace-nowrap border-r border-slate-200">${r[FDPDATE] || ''}</td>
+      <td class="px-4 py-2.5 text-slate-600 whitespace-nowrap border-r border-slate-200">${formatDateDDMMYYYY(r[FDPDATE])}</td>
       <td class="px-4 py-2.5 text-slate-700 whitespace-nowrap border-r border-slate-200">${DV[r[FDV]] || ''}</td>
       <td class="px-4 py-2.5 text-slate-700 whitespace-nowrap border-r border-slate-200">${DE[r[FDE]] || ''}</td>
       <td class="px-4 py-2.5 text-slate-700 whitespace-nowrap border-r border-slate-200">${PL[r[FPL]] || ''}</td>
