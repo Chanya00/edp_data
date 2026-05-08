@@ -895,15 +895,14 @@ function renderTable(data) {
   const rows = Object.entries(groups)
     .sort((a,b) => (b[1].unSDA+b[1].unPaper+b[1].unEDP) - (a[1].unSDA+a[1].unPaper+a[1].unEDP));
 
-  const bar = (p, isDark = false) => {
+  const bar = p => {
     const col = p>=80 ? 'bg-green-500 text-green-600' : p>=50 ? 'bg-amber-400 text-amber-600' : 'bg-red-400 text-red-600';
     const [bg, tc] = col.split(' ');
-    const textColor = isDark ? 'text-white' : tc;
     return `<div class="flex items-center gap-1.5 justify-end">
       <div class="w-14 h-1.5 bg-slate-100 rounded-full overflow-hidden">
         <div class="h-full rounded-full ${bg}" style="width:${Math.min(p,100).toFixed(0)}%"></div>
       </div>
-      <span class="font-semibold ${textColor} tabular-nums w-12 text-right">${p.toFixed(1)}%</span>
+      <span class="font-semibold ${tc} tabular-nums w-12 text-right">${p.toFixed(1)}%</span>
     </div>`;
   };
 
@@ -993,14 +992,14 @@ function renderTable(data) {
     const unsigned = unsignedCount(g);
     const pct = g.total > 0 ? g.signed / g.total * 100 : 0;
     const avg = g.signed > 0 ? (g.dsSum / g.signed).toFixed(1) : '-';
-    const tc = isDark ? 'text-white' : 'text-slate-600';
-    const tcRed = isDark ? 'text-white' : 'text-red-600';
-    const tcBlue = isDark ? 'text-white' : 'text-blue-600';
-    const tcAmber = isDark ? 'text-white' : 'text-amber-600';
-    const tcEmerald = isDark ? 'text-white' : 'text-emerald-600';
-    const tcGreen = isDark ? 'text-white' : 'text-green-600';
-    const tcBlue700 = isDark ? 'text-white' : 'text-blue-700';
-    const bgStyle = isDark ? ' style="background-color:#1b305b"' : '';
+    const tc = 'text-slate-600';
+    const tcRed = 'text-red-600';
+    const tcBlue = 'text-blue-600';
+    const tcAmber = 'text-amber-600';
+    const tcEmerald = 'text-emerald-600';
+    const tcGreen = 'text-green-600';
+    const tcBlue700 = 'text-blue-700';
+    const bgStyle = isDark ? ' style="background-color:#F8F9FA"' : '';
     return `<tr class="${rowClass}"${bgStyle}>
       ${nameCell}
       <td class="px-4 py-2.5 text-right tabular-nums border-r border-slate-200 ${tc}">${fmt(g.total)}</td>
@@ -1052,8 +1051,8 @@ function renderTable(data) {
           const plantRows = isSectOpen ? plantEntries.map(([plantName, plantGroup]) => {
             return rowHtml(
               plantGroup,
-              `<td class="px-4 py-2.5 text-white max-w-xs truncate" title="${escAttr(plantName)}">
-                <span class="inline-block w-24"></span><span class="text-white/70">โรงงาน</span>
+              `<td class="px-4 py-2.5 text-slate-700 max-w-xs truncate" title="${escAttr(plantName)}">
+                <span class="inline-block w-24"></span><span class="text-slate-400">โรงงาน</span>
                 <span class="font-normal ml-1">${plantName}</span>
               </td>`,
               'border-b border-slate-100',
@@ -1063,10 +1062,10 @@ function renderTable(data) {
 
           return rowHtml(
             sectGroup,
-            `<td class="px-4 py-2.5 ${isSectOpen ? 'text-slate-700' : 'text-white'} max-w-xs truncate" title="${escAttr(sectName)}">
+            `<td class="px-4 py-2.5 text-slate-700 max-w-xs truncate" title="${escAttr(sectName)}">
               <span class="inline-block w-14"></span>
-              <button type="button" class="inline-flex items-center gap-2 ${isSectOpen ? 'hover:text-blue-600' : 'hover:text-white'}" onclick="toggleSummarySect('${escAttr(sectKey)}')" aria-expanded="${isSectOpen}">
-                <span class="inline-block w-4 ${isSectOpen ? 'text-slate-400' : 'text-white/70'}">${sectIcon}</span><span class="${isSectOpen ? 'text-slate-400' : 'text-white/70'}">แผนก</span>
+              <button type="button" class="inline-flex items-center gap-2 hover:text-blue-600" onclick="toggleSummarySect('${escAttr(sectKey)}')" aria-expanded="${isSectOpen}">
+                <span class="inline-block w-4 text-slate-400">${sectIcon}</span><span class="text-slate-400">แผนก</span>
                 <span class="${sectNameClass} ml-1">${sectName}</span>
               </button>
             </td>`,
@@ -1077,10 +1076,10 @@ function renderTable(data) {
 
         return rowHtml(
           deptGroup,
-          `<td class="px-4 py-2.5 ${isDeptOpen ? 'text-slate-700' : 'text-white'} max-w-xs truncate" title="${escAttr(deptName)}">
+          `<td class="px-4 py-2.5 text-slate-700 max-w-xs truncate" title="${escAttr(deptName)}">
             <span class="inline-block w-4"></span>
-            <button type="button" class="inline-flex items-center gap-2 ${isDeptOpen ? 'hover:text-blue-600' : 'hover:text-white'}" onclick="toggleSummaryDept('${escAttr(deptKey)}')" aria-expanded="${isDeptOpen}">
-              <span class="inline-block w-4 ${isDeptOpen ? 'text-slate-400' : 'text-white/70'}">${deptIcon}</span><span class="${isDeptOpen ? 'text-slate-400' : 'text-white/70'}">ภาค</span>
+            <button type="button" class="inline-flex items-center gap-2 hover:text-blue-600" onclick="toggleSummaryDept('${escAttr(deptKey)}')" aria-expanded="${isDeptOpen}">
+              <span class="inline-block w-4 text-slate-400">${deptIcon}</span><span class="text-slate-400">ภาค</span>
               <span class="${deptNameClass} ml-1">${deptName}</span>
             </button>
           </td>`,
