@@ -96,27 +96,6 @@
     <button id="clear-site" class="text-white/70 hover:text-white text-lg leading-none" title="ล้าง">×</button>
   </div>
 
-  <!-- Doc type toggle -->
-  <div class="ml-auto flex items-center gap-1.5">
-    <span class="filter-label" style="color:#fff">ประเภท DP</span>
-    <div class="flex rounded border border-white/40 overflow-hidden text-sm">
-      <button data-grp="all" class="grp-btn active px-3 py-1.5 font-medium border-r border-slate-300">ทั้งหมด</button>
-      <button data-grp="sda" class="grp-btn px-3 py-1.5 font-medium border-r border-slate-300">SDA</button>
-      <button data-grp="paper" class="grp-btn px-3 py-1.5 font-medium border-r border-slate-300">Paper</button>
-      <button data-grp="edp" class="grp-btn px-3 py-1.5 font-medium">EDP</button>
-    </div>
-  </div>
-</div>
-
-<!-- DOC TYPE FILTER -->
-<div class="px-6 pt-3 pb-0 flex justify-end items-center gap-1.5">
-  <span class="text-sm font-semibold text-slate-500 uppercase tracking-wide">ประเภท DP</span>
-  <div class="flex rounded border border-slate-300 overflow-hidden text-sm">
-    <button data-grp="all" class="grp-btn active px-3 py-1.5 font-medium border-r border-slate-300">ทั้งหมด</button>
-    <button data-grp="sda" class="grp-btn px-3 py-1.5 font-medium border-r border-slate-300">SDA</button>
-    <button data-grp="paper" class="grp-btn px-3 py-1.5 font-medium border-r border-slate-300">Paper</button>
-    <button data-grp="edp" class="grp-btn px-3 py-1.5 font-medium">EDP</button>
-  </div>
 </div>
 
 <!-- KPI CARDS -->
@@ -1137,18 +1116,18 @@ function formatDateSearch(dateStr) {
   return (dateStr || '').toLowerCase();
 }
 
-function formatDateDDMMYYYY(dateStr) {
+function formatDateYYYYMMDD(dateStr) {
   const v = (dateStr || '').trim().replace(/^'+|'+$/g, '');
   if (!v) return '';
   // Format: YYYY-MM-DD HH:MM:SS.mmm
   let m = v.match(/^(\d{4})-(\d{2})-(\d{2})/);
-  if (m) return `${m[3]}/${m[2]}/${m[1]}`;
+  if (m) return `${m[1]}/${m[2]}/${m[3]}`;
   // Format: DD/MM/YYYY HH:MM
   m = v.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);
   if (m) {
     const d = String(m[1]).padStart(2, '0');
     const mo = String(m[2]).padStart(2, '0');
-    return `${d}/${mo}/${m[3]}`;
+    return `${m[3]}/${mo}/${d}`;
   }
   return dateStr || '';
 }
@@ -1185,7 +1164,7 @@ function renderDetailTable(data) {
     const days = isSigned ? r[FDS] : r[FDU];
     return `<tr class="border-b border-slate-100">
       <td class="px-4 py-2.5 font-medium text-slate-800 tabular-nums whitespace-nowrap border-r border-slate-200">${r[FDPNO] || ''}</td>
-      <td class="px-4 py-2.5 text-slate-600 whitespace-nowrap border-r border-slate-200">${formatDateDDMMYYYY(r[FDPDATE])}</td>
+      <td class="px-4 py-2.5 text-slate-600 whitespace-nowrap border-r border-slate-200">${formatDateYYYYMMDD(r[FDPDATE])}</td>
       <td class="px-4 py-2.5 text-slate-700 whitespace-nowrap border-r border-slate-200">${DV[r[FDV]] || ''}</td>
       <td class="px-4 py-2.5 text-slate-700 whitespace-nowrap border-r border-slate-200">${DE[r[FDE]] || ''}</td>
       <td class="px-4 py-2.5 text-slate-700 whitespace-nowrap border-r border-slate-200">${PL[r[FPL]] || ''}</td>
