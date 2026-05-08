@@ -1118,30 +1118,48 @@ function renderTable(data) {
 }
 
 function formatDateSearch(dateStr) {
-  const m = (dateStr || '').match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);
-  if (!m) return (dateStr || '').toLowerCase();
-  const d = String(m[1]).padStart(2, '0');
-  const mo = String(m[2]).padStart(2, '0');
-  const y = m[3];
-  return `${d}/${mo}/${y} ${m[1]}/${m[2]}/${y}`;
+  const v = (dateStr || '').trim().replace(/^'+|'+$/g, '');
+  if (!v) return '';
+  // Format: YYYY-MM-DD HH:MM:SS.mmm
+  let m = v.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (m) {
+    const d = m[3], mo = m[2], y = m[1];
+    return `${d}/${mo}/${y} ${d}-${mo}-${y} ${Number(d)}/${mo}/${y}`;
+  }
+  // Format: DD/MM/YYYY HH:MM
+  m = v.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+  if (m) {
+    const d = String(m[1]).padStart(2, '0');
+    const mo = String(m[2]).padStart(2, '0');
+    const y = m[3];
+    return `${d}/${mo}/${y} ${d}-${mo}-${y} ${m[1]}/${m[2]}/${y}`;
+  }
+  return (dateStr || '').toLowerCase();
 }
 
 function formatDateDDMMYYYY(dateStr) {
-  const m = (dateStr || '').match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);
-  if (!m) return dateStr || '';
-  const d = String(m[1]).padStart(2, '0');
-  const mo = String(m[2]).padStart(2, '0');
-  const y = m[3];
-  return `${d}/${mo}/${y}`;
+  const v = (dateStr || '').trim().replace(/^'+|'+$/g, '');
+  if (!v) return '';
+  // Format: YYYY-MM-DD HH:MM:SS.mmm
+  let m = v.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (m) return `${m[3]}/${m[2]}/${m[1]}`;
+  // Format: DD/MM/YYYY HH:MM
+  m = v.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+  if (m) {
+    const d = String(m[1]).padStart(2, '0');
+    const mo = String(m[2]).padStart(2, '0');
+    return `${d}/${mo}/${m[3]}`;
+  }
+  return dateStr || '';
 }
 
 function filterDetailData(data) {
   const raw = state.detailSearch.trim().toLowerCase();
   if (!raw) return data;
-  const terms = raw.split(',').map(s => s.trim()).filter(Boolean);
+  const terms = raw.split(',').map(s => s.trim().replace(/\//g, '-')).filter(Boolean);
   return data.filter(r => {
     const text = [
-      r[FDPNO], formatDateSearch(r[FDPDATE]), DV[r[FDV]], DE[r[FDE]], PL[r[FPL]],
+      r[FDPNO], formatDateSearch(r[FDPDATE]).replace(/\//g, '-'), DV[r[FDV]], DE[r[FDE]], PL[r[FPL]],
       CU[r[FCU]], SI[r[FSI]], r[FDOC]
     ].map(v => (v || '').toLowerCase()).join(' ');
     return terms.every(term => text.includes(term));
