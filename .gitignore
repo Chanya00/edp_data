@@ -1,0 +1,10 @@
+# Large raw data file (split into monthly files instead)
+EDP-2026-update.csv
+
+# Scripts
+split_by_month.py
+*.py
+
+# System files
+.DS_Store
+Thumbs.db
