@@ -1068,12 +1068,21 @@ function renderTable(data) {
   )).join('');
 }
 
+function formatDateSearch(dateStr) {
+  const m = (dateStr || '').match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+  if (!m) return (dateStr || '').toLowerCase();
+  const d = String(m[1]).padStart(2, '0');
+  const mo = String(m[2]).padStart(2, '0');
+  const y = m[3];
+  return `${d}/${mo}/${y} ${m[1]}/${m[2]}/${y}`;
+}
+
 function filterDetailData(data) {
   const q = state.detailSearch.trim().toLowerCase();
   if (!q) return data;
   return data.filter(r => {
     const text = [
-      r[FDPNO], r[FDPDATE], DV[r[FDV]], DE[r[FDE]], PL[r[FPL]],
+      r[FDPNO], formatDateSearch(r[FDPDATE]), DV[r[FDV]], DE[r[FDE]], PL[r[FPL]],
       CU[r[FCU]], SI[r[FSI]], r[FDOC]
     ].map(v => (v || '').toLowerCase()).join(' ');
     return text.includes(q);
