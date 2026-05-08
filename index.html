@@ -1019,7 +1019,8 @@ function renderTable(data) {
       const deptGroups = aggregateBy(r => DV[r[FDV]] === name ? DE[r[FDE]] : '');
       delete deptGroups[blankLabel];
       const deptEntries = sortDeptEntries(Object.entries(deptGroups));
-      const maxDeptUnsigned = deptEntries.reduce((max, [, deptGroup]) => Math.max(max, unsignedCount(deptGroup)), 0);
+      const hasExpandedDeptInDiv = deptEntries.some(([deptName]) => expandedDepts.has(name + '||' + deptName));
+
       const deptRows = isDivOpen ? deptEntries.map(([deptName, deptGroup]) => {
         const deptKey = name + '||' + deptName;
         const isDeptOpen = expandedDepts.has(deptKey);
@@ -1029,7 +1030,7 @@ function renderTable(data) {
         const sectGroups = aggregateBy(r => DV[r[FDV]] === name && DE[r[FDE]] === deptName ? SE[r[FSE]] : '');
         delete sectGroups[blankLabel];
         const sectEntries = [...Object.entries(sectGroups)].sort((a, b) => (a[0] || '').localeCompare(b[0] || '', 'th'));
-        const maxSectUnsigned = sectEntries.reduce((max, [, sectGroup]) => Math.max(max, unsignedCount(sectGroup)), 0);
+        const hasExpandedSectInDept = sectEntries.some(([sectName]) => expandedSects.has(deptKey + '||' + sectName));
 
         const sectRows = isDeptOpen ? sectEntries.map(([sectName, sectGroup]) => {
           const sectKey = deptKey + '||' + sectName;
@@ -1063,7 +1064,7 @@ function renderTable(data) {
               </button>
             </td>`,
             'border-b border-slate-100',
-            true
+            isDeptOpen && !hasExpandedSectInDept
           ) + plantRows;
         }).join('') : '';
 
@@ -1077,7 +1078,7 @@ function renderTable(data) {
             </button>
           </td>`,
           'border-b border-slate-100',
-          true
+          isDivOpen && !hasExpandedDeptInDiv
         ) + sectRows;
       }).join('') : '';
 
