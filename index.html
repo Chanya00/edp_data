@@ -178,14 +178,14 @@
       <table class="w-full text-sm">
         <thead>
           <tr class="bg-slate-50 text-xs border-b border-slate-200">
-            <th class="text-left px-4 py-3 font-semibold text-slate-600">ชื่อ</th>
-            <th class="text-right px-4 py-3 font-semibold text-slate-600">DP ทั้งหมด</th>
-            <th id="label-th-unsigned" class="text-right px-4 py-3 font-semibold text-red-500">ยังไม่ลงนาม</th>
-            <th class="text-right px-4 py-3 font-semibold text-blue-500">SDA ไม่ลง</th>
-            <th class="text-right px-4 py-3 font-semibold text-amber-500">Paper ไม่ลง</th>
-            <th class="text-right px-4 py-3 font-semibold text-emerald-600">EDP ไม่ลง</th>
-            <th id="label-th-signed" class="text-right px-4 py-3 font-semibold text-green-600">ลงนามแล้ว</th>
-            <th id="label-th-signed-pct" class="text-right px-4 py-3 font-semibold text-slate-600">% ลงนาม</th>
+            <th class="text-left px-4 py-3 font-semibold text-slate-600 border-r border-slate-200">ชื่อ</th>
+            <th class="text-right px-4 py-3 font-semibold text-slate-600 border-r border-slate-200">DP ทั้งหมด</th>
+            <th id="label-th-unsigned" class="text-right px-4 py-3 font-semibold text-red-500 border-r border-slate-200">ยังไม่ลงนาม</th>
+            <th class="text-right px-4 py-3 font-semibold text-blue-500 border-r border-slate-200">SDA ไม่ลง</th>
+            <th class="text-right px-4 py-3 font-semibold text-amber-500 border-r border-slate-200">Paper ไม่ลง</th>
+            <th class="text-right px-4 py-3 font-semibold text-emerald-600 border-r border-slate-200">EDP ไม่ลง</th>
+            <th id="label-th-signed" class="text-right px-4 py-3 font-semibold text-green-600 border-r border-slate-200">ลงนามแล้ว</th>
+            <th id="label-th-signed-pct" class="text-right px-4 py-3 font-semibold text-slate-600 border-r border-slate-200">% ลงนาม</th>
             <th class="text-right px-4 py-3 font-semibold text-blue-600">เฉลี่ยวัน</th>
           </tr>
         </thead>
@@ -305,16 +305,16 @@
       <table class="w-full text-sm">
         <thead>
           <tr class="bg-slate-50 text-xs border-b border-slate-200">
-            <th class="text-left px-4 py-3 font-semibold text-slate-600">DP No</th>
-            <th class="text-left px-4 py-3 font-semibold text-slate-600">DP Date</th>
-            <th class="text-left px-4 py-3 font-semibold text-slate-600">Division</th>
-            <th class="text-left px-4 py-3 font-semibold text-slate-600">Dept</th>
-            <th class="text-left px-4 py-3 font-semibold text-slate-600">Plant</th>
-            <th class="text-left px-4 py-3 font-semibold text-slate-600">Customer</th>
-            <th class="text-left px-4 py-3 font-semibold text-slate-600">Site</th>
-            <th class="text-left px-4 py-3 font-semibold text-slate-600">Type</th>
-            <th class="text-right px-4 py-3 font-semibold text-slate-600">คิว</th>
-            <th class="text-left px-4 py-3 font-semibold text-slate-600">สถานะ</th>
+            <th class="text-left px-4 py-3 font-semibold text-slate-600 border-r border-slate-200">DP No</th>
+            <th class="text-left px-4 py-3 font-semibold text-slate-600 border-r border-slate-200">DP Date</th>
+            <th class="text-left px-4 py-3 font-semibold text-slate-600 border-r border-slate-200">Division</th>
+            <th class="text-left px-4 py-3 font-semibold text-slate-600 border-r border-slate-200">Dept</th>
+            <th class="text-left px-4 py-3 font-semibold text-slate-600 border-r border-slate-200">Plant</th>
+            <th class="text-left px-4 py-3 font-semibold text-slate-600 border-r border-slate-200">Customer</th>
+            <th class="text-left px-4 py-3 font-semibold text-slate-600 border-r border-slate-200">Site</th>
+            <th class="text-left px-4 py-3 font-semibold text-slate-600 border-r border-slate-200">Type</th>
+            <th class="text-right px-4 py-3 font-semibold text-slate-600 border-r border-slate-200">คิว</th>
+            <th class="text-left px-4 py-3 font-semibold text-slate-600 border-r border-slate-200">สถานะ</th>
             <th class="text-right px-4 py-3 font-semibold text-slate-600">วัน</th>
           </tr>
         </thead>
@@ -527,6 +527,7 @@ let detailPage = 1;
 const DETAIL_PAGE_SIZE = 100;
 const expandedDivisions = new Set();
 const expandedDepts = new Set();
+const expandedSects = new Set();
 const COLLAPSIBLE_DIVISIONS = [
   'CPAC Metro',
   'CPAC East',
@@ -935,6 +936,12 @@ function toggleSummaryDept(key) {
   renderTable(getFiltered());
 }
 
+function toggleSummarySect(key) {
+  if (expandedSects.has(key)) expandedSects.delete(key);
+  else expandedSects.add(key);
+  renderTable(getFiltered());
+}
+
 function renderTable(data) {
   let groupFn, lvl;
   if (!state.div)   { groupFn = r => DV[r[FDV]]; lvl = 'Division'; }
@@ -987,13 +994,13 @@ function renderTable(data) {
     const avg = g.signed > 0 ? (g.dsSum / g.signed).toFixed(1) : '-';
     return `<tr class="${rowClass}">
       ${nameCell}
-      <td class="px-4 py-2.5 text-right text-slate-600 tabular-nums">${fmt(g.total)}</td>
-      <td class="px-4 py-2.5 text-right tabular-nums font-bold text-red-600">${fmt(unsigned)}</td>
-      <td class="px-4 py-2.5 text-right text-blue-600 tabular-nums">${fmt(g.unSDA)}</td>
-      <td class="px-4 py-2.5 text-right text-amber-600 tabular-nums">${fmt(g.unPaper)}</td>
-      <td class="px-4 py-2.5 text-right text-emerald-600 tabular-nums">${fmt(g.unEDP)}</td>
-      <td class="px-4 py-2.5 text-right text-green-600 tabular-nums">${fmt(g.signed)}</td>
-      <td class="px-4 py-2.5">${bar(pct)}</td>
+      <td class="px-4 py-2.5 text-right text-slate-600 tabular-nums border-r border-slate-200">${fmt(g.total)}</td>
+      <td class="px-4 py-2.5 text-right tabular-nums font-bold text-red-600 border-r border-slate-200">${fmt(unsigned)}</td>
+      <td class="px-4 py-2.5 text-right text-blue-600 tabular-nums border-r border-slate-200">${fmt(g.unSDA)}</td>
+      <td class="px-4 py-2.5 text-right text-amber-600 tabular-nums border-r border-slate-200">${fmt(g.unPaper)}</td>
+      <td class="px-4 py-2.5 text-right text-emerald-600 tabular-nums border-r border-slate-200">${fmt(g.unEDP)}</td>
+      <td class="px-4 py-2.5 text-right text-green-600 tabular-nums border-r border-slate-200">${fmt(g.signed)}</td>
+      <td class="px-4 py-2.5 border-r border-slate-200">${bar(pct)}</td>
       <td class="px-4 py-2.5 text-right text-blue-700 tabular-nums font-medium">${avg}</td>
     </tr>`;
   };
@@ -1024,15 +1031,37 @@ function renderTable(data) {
         const maxSectUnsigned = sectEntries.reduce((max, [, sectGroup]) => Math.max(max, unsignedCount(sectGroup)), 0);
 
         const sectRows = isDeptOpen ? sectEntries.map(([sectName, sectGroup]) => {
+          const sectKey = deptKey + '||' + sectName;
+          const isSectOpen = expandedSects.has(sectKey);
+          const sectIcon = isSectOpen ? '&#9662;' : '&#9656;';
           const sectNameClass = 'font-normal';
+
+          const plantGroups = aggregateBy(r => DV[r[FDV]] === name && DE[r[FDE]] === deptName && SE[r[FSE]] === sectName ? PL[r[FPL]] : '');
+          delete plantGroups[blankLabel];
+          const plantEntries = [...Object.entries(plantGroups)].sort((a, b) => (a[0] || '').localeCompare(b[0] || '', 'th'));
+
+          const plantRows = isSectOpen ? plantEntries.map(([plantName, plantGroup]) => {
+            return rowHtml(
+              plantGroup,
+              `<td class="px-4 py-2.5 text-slate-700 max-w-xs truncate" title="${escAttr(plantName)}">
+                <span class="inline-block w-24"></span><span class="text-slate-400">โรงงาน</span>
+                <span class="font-normal ml-1">${plantName}</span>
+              </td>`,
+              'border-b border-slate-100'
+            );
+          }).join('') : '';
+
           return rowHtml(
             sectGroup,
             `<td class="px-4 py-2.5 text-slate-700 max-w-xs truncate" title="${escAttr(sectName)}">
-              <span class="inline-block w-14"></span><span class="text-slate-400">แผนก</span>
-              <span class="${sectNameClass} ml-1">${sectName}</span>
+              <span class="inline-block w-14"></span>
+              <button type="button" class="inline-flex items-center gap-2 hover:text-blue-600" onclick="toggleSummarySect('${escAttr(sectKey)}')" aria-expanded="${isSectOpen}">
+                <span class="inline-block w-4 text-slate-400">${sectIcon}</span><span class="text-slate-400">แผนก</span>
+                <span class="${sectNameClass} ml-1">${sectName}</span>
+              </button>
             </td>`,
             'border-b border-slate-100'
-          );
+          ) + plantRows;
         }).join('') : '';
 
         return rowHtml(
@@ -1078,14 +1107,15 @@ function formatDateSearch(dateStr) {
 }
 
 function filterDetailData(data) {
-  const q = state.detailSearch.trim().toLowerCase();
-  if (!q) return data;
+  const raw = state.detailSearch.trim().toLowerCase();
+  if (!raw) return data;
+  const terms = raw.split(',').map(s => s.trim()).filter(Boolean);
   return data.filter(r => {
     const text = [
       r[FDPNO], formatDateSearch(r[FDPDATE]), DV[r[FDV]], DE[r[FDE]], PL[r[FPL]],
       CU[r[FCU]], SI[r[FSI]], r[FDOC]
     ].map(v => (v || '').toLowerCase()).join(' ');
-    return text.includes(q);
+    return terms.every(term => text.includes(term));
   });
 }
 
@@ -1107,16 +1137,16 @@ function renderDetailTable(data) {
       : 'bg-red-50 text-red-600';
     const days = isSigned ? r[FDS] : r[FDU];
     return `<tr class="border-b border-slate-100">
-      <td class="px-4 py-2.5 font-medium text-slate-800 tabular-nums whitespace-nowrap">${r[FDPNO] || ''}</td>
-      <td class="px-4 py-2.5 text-slate-600 whitespace-nowrap">${r[FDPDATE] || ''}</td>
-      <td class="px-4 py-2.5 text-slate-700 whitespace-nowrap">${DV[r[FDV]] || ''}</td>
-      <td class="px-4 py-2.5 text-slate-700 whitespace-nowrap">${DE[r[FDE]] || ''}</td>
-      <td class="px-4 py-2.5 text-slate-700 whitespace-nowrap">${PL[r[FPL]] || ''}</td>
-      <td class="px-4 py-2.5 text-slate-700 max-w-xs truncate" title="${CU[r[FCU]] || ''}">${CU[r[FCU]] || ''}</td>
-      <td class="px-4 py-2.5 text-slate-700 max-w-xs truncate" title="${SI[r[FSI]] || ''}">${SI[r[FSI]] || ''}</td>
-      <td class="px-4 py-2.5 text-slate-600 whitespace-nowrap">${r[FDOC] || ''}</td>
-      <td class="px-4 py-2.5 text-right text-slate-700 tabular-nums">${fmtQty(r[FQTY])}</td>
-      <td class="px-4 py-2.5"><span class="px-2 py-1 rounded text-xs font-semibold whitespace-nowrap ${statusClass}">${isSigned ? (useScanText ? 'สแกนแล้ว' : 'ลงนามแล้ว') : (useScanText ? 'ยังไม่สแกน' : 'ยังไม่ลงนาม')}</span></td>
+      <td class="px-4 py-2.5 font-medium text-slate-800 tabular-nums whitespace-nowrap border-r border-slate-200">${r[FDPNO] || ''}</td>
+      <td class="px-4 py-2.5 text-slate-600 whitespace-nowrap border-r border-slate-200">${r[FDPDATE] || ''}</td>
+      <td class="px-4 py-2.5 text-slate-700 whitespace-nowrap border-r border-slate-200">${DV[r[FDV]] || ''}</td>
+      <td class="px-4 py-2.5 text-slate-700 whitespace-nowrap border-r border-slate-200">${DE[r[FDE]] || ''}</td>
+      <td class="px-4 py-2.5 text-slate-700 whitespace-nowrap border-r border-slate-200">${PL[r[FPL]] || ''}</td>
+      <td class="px-4 py-2.5 text-slate-700 max-w-xs truncate border-r border-slate-200" title="${CU[r[FCU]] || ''}">${CU[r[FCU]] || ''}</td>
+      <td class="px-4 py-2.5 text-slate-700 max-w-xs truncate border-r border-slate-200" title="${SI[r[FSI]] || ''}">${SI[r[FSI]] || ''}</td>
+      <td class="px-4 py-2.5 text-slate-600 whitespace-nowrap border-r border-slate-200">${r[FDOC] || ''}</td>
+      <td class="px-4 py-2.5 text-right text-slate-700 tabular-nums border-r border-slate-200">${fmtQty(r[FQTY])}</td>
+      <td class="px-4 py-2.5 border-r border-slate-200"><span class="px-2 py-1 rounded text-xs font-semibold whitespace-nowrap ${statusClass}">${isSigned ? (useScanText ? 'สแกนแล้ว' : 'ลงนามแล้ว') : (useScanText ? 'ยังไม่สแกน' : 'ยังไม่ลงนาม')}</span></td>
       <td class="px-4 py-2.5 text-right text-slate-700 tabular-nums">${days === null || days === undefined ? '—' : days}</td>
     </tr>`;
   }).join('') || `<tr><td colspan="11" class="px-4 py-6 text-center text-slate-400">ไม่พบข้อมูล</td></tr>`;
