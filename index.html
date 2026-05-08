@@ -108,8 +108,19 @@
   </div>
 </div>
 
+<!-- DOC TYPE FILTER -->
+<div class="px-6 pt-3 pb-0 flex justify-end items-center gap-1.5">
+  <span class="text-sm font-semibold text-slate-500 uppercase tracking-wide">ประเภท DP</span>
+  <div class="flex rounded border border-slate-300 overflow-hidden text-sm">
+    <button data-grp="all" class="grp-btn active px-3 py-1.5 font-medium border-r border-slate-300">ทั้งหมด</button>
+    <button data-grp="sda" class="grp-btn px-3 py-1.5 font-medium border-r border-slate-300">SDA</button>
+    <button data-grp="paper" class="grp-btn px-3 py-1.5 font-medium border-r border-slate-300">Paper</button>
+    <button data-grp="edp" class="grp-btn px-3 py-1.5 font-medium">EDP</button>
+  </div>
+</div>
+
 <!-- KPI CARDS -->
-<div class="grid grid-cols-2 lg:grid-cols-5 gap-3 px-6 pt-4 pb-3">
+<div class="grid grid-cols-2 lg:grid-cols-5 gap-3 px-6 pt-3 pb-3">
   <div class="bg-white rounded-lg p-4 shadow-sm border border-slate-200">
     <p class="text-sm font-semibold text-slate-500 uppercase tracking-wide">DP ทั้งหมด</p>
     <p id="kpi-total" class="text-3xl font-bold text-slate-900 mt-1.5 tabular-nums">234,556</p>
@@ -139,21 +150,10 @@
     <p id="kpi-avgdays" class="text-3xl font-bold text-blue-600 mt-1.5 tabular-nums">1.6</p>
     <p id="label-kpi-avgdays-desc" class="text-xs text-slate-400 mt-1.5">วัน (signed − dp_date)</p>
   </div>
-  <div class="flex flex-col gap-2">
-    <div class="flex items-center justify-end gap-1.5">
-      <span class="text-sm font-semibold text-slate-500 uppercase tracking-wide">ประเภท DP</span>
-      <div class="flex rounded border border-slate-300 overflow-hidden text-sm">
-        <button data-grp="all" class="grp-btn active px-3 py-1.5 font-medium border-r border-slate-300">ทั้งหมด</button>
-        <button data-grp="sda" class="grp-btn px-3 py-1.5 font-medium border-r border-slate-300">SDA</button>
-        <button data-grp="paper" class="grp-btn px-3 py-1.5 font-medium border-r border-slate-300">Paper</button>
-        <button data-grp="edp" class="grp-btn px-3 py-1.5 font-medium">EDP</button>
-      </div>
-    </div>
-    <div class="bg-white rounded-lg p-4 shadow-sm border border-slate-200">
-      <p class="text-sm font-semibold text-slate-500 uppercase tracking-wide">เฉลี่ยวัน (ไม่ลง)</p>
-      <p id="kpi-avg-un-big" class="text-3xl font-bold text-orange-500 mt-1.5 tabular-nums">49.8</p>
-      <p class="text-xs text-slate-400 mt-1.5">วัน นับจากออก DP</p>
-    </div>
+  <div class="bg-white rounded-lg p-4 shadow-sm border border-slate-200">
+    <p class="text-sm font-semibold text-slate-500 uppercase tracking-wide">เฉลี่ยวัน (ไม่ลง)</p>
+    <p id="kpi-avg-un-big" class="text-3xl font-bold text-orange-500 mt-1.5 tabular-nums">49.8</p>
+    <p class="text-xs text-slate-400 mt-1.5">วัน นับจากออก DP</p>
   </div>
 </div>
 
