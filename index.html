@@ -290,6 +290,32 @@
   </div>
 </div>
 
+<!-- HORIZONTAL SUMMARY CARD -->
+<div class="px-6 pt-3 pb-3">
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+    <div class="bg-white rounded-lg shadow-sm border border-slate-200 p-5">
+      <div class="flex items-center justify-between">
+        <div class="text-center flex-1 border-r border-slate-200 pr-4">
+          <p class="text-xs text-slate-500 uppercase tracking-wide">DP ทั้งหมด</p>
+          <p id="hs-total" class="text-xl font-bold text-slate-900 tabular-nums">234,556</p>
+        </div>
+        <div class="text-center flex-1 border-r border-slate-200 px-4">
+          <p class="text-xs text-red-500 uppercase tracking-wide">ยังไม่ลงนาม</p>
+          <p id="hs-unsigned" class="text-xl font-bold text-red-600 tabular-nums">197,456</p>
+        </div>
+        <div class="text-center flex-1 border-r border-slate-200 px-4">
+          <p class="text-xs text-green-500 uppercase tracking-wide">ลงนามแล้ว</p>
+          <p id="hs-signed" class="text-xl font-bold text-green-600 tabular-nums">37,100</p>
+        </div>
+        <div class="text-center flex-1 pl-4">
+          <p class="text-xs text-blue-500 uppercase tracking-wide">เฉลี่ยวัน (ไม่ลง)</p>
+          <p id="hs-avg" class="text-xl font-bold text-blue-600 tabular-nums">49.8</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- DETAIL TABLE -->
 <div class="px-6 pb-8">
   <div class="bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden">
@@ -769,6 +795,12 @@ function updateAll() {
   document.getElementById('kpi-avgdays').textContent    = avgDs;
   document.getElementById('kpi-avg-un-big').textContent = avgDu;
   document.getElementById('kpi-avg-unsigned').textContent = `เฉลี่ย ${avgDu} วัน`;
+
+  // Horizontal Summary Card
+  document.getElementById('hs-total').textContent    = fmt(data.length);
+  document.getElementById('hs-unsigned').textContent = fmt(unsigned.length);
+  document.getElementById('hs-signed').textContent   = fmt(signed.length);
+  document.getElementById('hs-avg').textContent      = avgDu !== '—' ? avgDu : '—';
 
   document.getElementById('unsigned-count-badge').textContent = `${fmt(unsigned.length)} รายการ`;
   document.getElementById('signed-count-badge').textContent   = `${fmt(signed.length)} รายการ`;
