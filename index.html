@@ -968,12 +968,27 @@ function renderDoughnut(customerName) {
   if (entries.length && listEl) {
     listEl.innerHTML = entries.map((e, i) => {
       const color = bgColors[i % bgColors.length];
-      return `<div class="flex items-center gap-2">
+      return `<div class="site-row flex items-center gap-2 cursor-pointer hover:bg-slate-50 rounded px-1 py-0.5 transition-colors" data-site="${e[0].replace(/"/g, '&quot;')}">
         <span class="w-3 h-3 rounded-full flex-shrink-0" style="background-color:${color}"></span>
-        <span class="text-sm text-slate-700 break-words leading-tight">${e[0]}</span>
-        <span class="text-sm font-bold text-slate-900 ml-auto tabular-nums">${fmt(e[1])}</span>
+        <span class="text-sm text-slate-700 break-words leading-tight flex-1">${e[0]}</span>
+        <span class="text-sm font-bold text-slate-900 tabular-nums">${fmt(e[1])}</span>
       </div>`;
     }).join('');
+    // Click to search in Detail Table
+    listEl.querySelectorAll('.site-row').forEach(row => {
+      row.addEventListener('click', () => {
+        const siteName = row.dataset.site;
+        const searchInput = document.getElementById('detail-search');
+        if (searchInput) {
+          searchInput.value = siteName;
+          state.detailSearch = siteName;
+          detailPage = 1;
+          renderDetailTable(filterDetailData(getFiltered()));
+          // Scroll to detail table
+          document.getElementById('detail-table').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      });
+    });
   } else if (listEl) {
     listEl.innerHTML = '<p class="text-sm text-slate-400">ไม่มีข้อมูล</p>';
   }
@@ -1313,7 +1328,7 @@ function filterDetailData(data) {
     const text = [
       r[FDPNO], formatDateSearch(r[FDPDATE]).replace(/\//g, '-'), DV[r[FDV]], DE[r[FDE]], PL[r[FPL]],
       CU[r[FCU]], SI[r[FSI]], r[FDOC]
-    ].map(v => (v || '').toLowerCase()).join(' ');
+    ].map(v => (v || '').toString().trim().toLowerCase()).join(' ');
     return terms.every(term => text.includes(term));
   });
 }
