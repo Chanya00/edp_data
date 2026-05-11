@@ -295,7 +295,7 @@
   <div class="grid grid-cols-1 lg:grid-cols-5 gap-4">
     <div class="bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden lg:col-span-2">
       <div class="px-5 py-2.5 border-b border-slate-200 bg-slate-50">
-        <h3 class="text-sm font-bold text-slate-800">ไซต์งานที่ไม่ได้ลงนาม</h3>
+        <h3 class="text-sm font-bold text-slate-800">ลูกค้าที่ยังไม่ได้ลงนาม</h3>
       </div>
       <!-- Row 1 -->
       <div class="hsc-row flex items-center px-5 py-4 border-b border-slate-100 cursor-pointer hover:bg-slate-50 transition-colors" data-idx="0">
@@ -353,7 +353,7 @@
       </div>
       <!-- Bottom: Description right-aligned -->
       <div class="mt-3 text-right">
-        <p class="text-xs text-slate-500">สัดส่วน DP ตามประเภท</p>
+        <p class="text-xs text-slate-500">หน่วยงานที่ไม่ได้ลงนาม</p>
         <p id="doughnut-customer-name" class="text-sm font-bold text-slate-800">ไซต์งาน: —</p>
       </div>
     </div>
@@ -970,7 +970,7 @@ function renderDoughnut(customerName) {
       const color = bgColors[i % bgColors.length];
       return `<div class="flex items-center gap-2">
         <span class="w-3 h-3 rounded-full flex-shrink-0" style="background-color:${color}"></span>
-        <span class="text-sm text-slate-700 whitespace-nowrap">${e[0]}</span>
+        <span class="text-sm text-slate-700 break-words leading-tight">${e[0]}</span>
         <span class="text-sm font-bold text-slate-900 ml-auto tabular-nums">${fmt(e[1])}</span>
       </div>`;
     }).join('');
