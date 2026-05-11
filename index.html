@@ -293,23 +293,60 @@
 <!-- HORIZONTAL SUMMARY CARD -->
 <div class="px-6 pt-3 pb-3">
   <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-    <div class="bg-white rounded-lg shadow-sm border border-slate-200 p-5">
-      <div class="flex items-center justify-between">
-        <div class="text-center flex-1 border-r border-slate-200 pr-4">
-          <p class="text-xs text-slate-500 uppercase tracking-wide">DP ทั้งหมด</p>
-          <p id="hs-total" class="text-xl font-bold text-slate-900 tabular-nums">234,556</p>
+    <div class="bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden">
+      <!-- Row 1: DP ทั้งหมด -->
+      <div class="flex items-center px-5 py-4 border-b border-slate-100">
+        <div class="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0">
+          <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"></path>
+          </svg>
         </div>
-        <div class="text-center flex-1 border-r border-slate-200 px-4">
-          <p class="text-xs text-red-500 uppercase tracking-wide">ยังไม่ลงนาม</p>
-          <p id="hs-unsigned" class="text-xl font-bold text-red-600 tabular-nums">197,456</p>
+        <div class="ml-4 flex-1">
+          <p class="text-sm font-medium text-slate-600">DP ทั้งหมด</p>
         </div>
-        <div class="text-center flex-1 border-r border-slate-200 px-4">
-          <p class="text-xs text-green-500 uppercase tracking-wide">ลงนามแล้ว</p>
-          <p id="hs-signed" class="text-xl font-bold text-green-600 tabular-nums">37,100</p>
+        <div class="flex items-center gap-3">
+          <p id="hsc-total" class="text-lg font-bold text-slate-900 tabular-nums">—</p>
+          <span id="hsc-total-badge" class="inline-flex items-center gap-1 text-xs font-medium text-green-600 bg-green-50 px-2 py-1 rounded-full">
+            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path></svg>
+            0%
+          </span>
         </div>
-        <div class="text-center flex-1 pl-4">
-          <p class="text-xs text-blue-500 uppercase tracking-wide">เฉลี่ยวัน (ไม่ลง)</p>
-          <p id="hs-avg" class="text-xl font-bold text-blue-600 tabular-nums">49.8</p>
+      </div>
+      <!-- Row 2: ยังไม่ลงนาม -->
+      <div class="flex items-center px-5 py-4 border-b border-slate-100">
+        <div class="w-10 h-10 rounded-lg bg-red-50 flex items-center justify-center flex-shrink-0">
+          <svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+          </svg>
+        </div>
+        <div class="ml-4 flex-1">
+          <p class="text-sm font-medium text-slate-600">ยังไม่ลงนาม</p>
+        </div>
+        <div class="flex items-center gap-3">
+          <p id="hsc-unsigned" class="text-lg font-bold text-slate-900 tabular-nums">—</p>
+          <span id="hsc-unsigned-badge" class="inline-flex items-center gap-1 text-xs font-medium text-red-600 bg-red-50 px-2 py-1 rounded-full">
+            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path></svg>
+            0%
+          </span>
+        </div>
+      </div>
+      <!-- Row 3: % วันลงนาม -->
+      <div class="flex items-center px-5 py-4">
+        <div class="w-10 h-10 rounded-lg bg-green-50 flex items-center justify-center flex-shrink-0">
+          <svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+        </div>
+        <div class="ml-4 flex-1">
+          <p class="text-sm font-medium text-slate-600">% วันลงนาม</p>
+        </div>
+        <div class="flex items-center gap-3">
+          <p id="hsc-signed-pct" class="text-lg font-bold text-slate-900 tabular-nums">—</p>
+          <span id="hsc-signed-pct-badge" class="inline-flex items-center gap-1 text-xs font-medium text-green-600 bg-green-50 px-2 py-1 rounded-full">
+            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path></svg>
+            0%
+          </span>
         </div>
       </div>
     </div>
@@ -795,12 +832,6 @@ function updateAll() {
   document.getElementById('kpi-avgdays').textContent    = avgDs;
   document.getElementById('kpi-avg-un-big').textContent = avgDu;
   document.getElementById('kpi-avg-unsigned').textContent = `เฉลี่ย ${avgDu} วัน`;
-
-  // Horizontal Summary Card
-  document.getElementById('hs-total').textContent    = fmt(data.length);
-  document.getElementById('hs-unsigned').textContent = fmt(unsigned.length);
-  document.getElementById('hs-signed').textContent   = fmt(signed.length);
-  document.getElementById('hs-avg').textContent      = avgDu !== '—' ? avgDu : '—';
 
   document.getElementById('unsigned-count-badge').textContent = `${fmt(unsigned.length)} รายการ`;
   document.getElementById('signed-count-badge').textContent   = `${fmt(signed.length)} รายการ`;
