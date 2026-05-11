@@ -298,7 +298,7 @@
         <h3 class="text-sm font-bold text-slate-800">ไซต์งานที่ไม่ได้ลงนาม</h3>
       </div>
       <!-- Row 1 -->
-      <div class="flex items-center px-5 py-4 border-b border-slate-100">
+      <div class="hsc-row flex items-center px-5 py-4 border-b border-slate-100 cursor-pointer hover:bg-slate-50 transition-colors" data-idx="0">
         <div class="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0 text-sm font-bold text-red-600">1</div>
         <div class="ml-4 flex-1 min-w-0">
           <p id="hsc-cust-1-name" class="text-sm font-medium text-slate-800 truncate">—</p>
@@ -306,7 +306,7 @@
         <p id="hsc-cust-1-count" class="text-base font-bold text-slate-900 tabular-nums ml-3">—</p>
       </div>
       <!-- Row 2 -->
-      <div class="flex items-center px-5 py-4 border-b border-slate-100">
+      <div class="hsc-row flex items-center px-5 py-4 border-b border-slate-100 cursor-pointer hover:bg-slate-50 transition-colors" data-idx="1">
         <div class="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0 text-sm font-bold text-red-600">2</div>
         <div class="ml-4 flex-1 min-w-0">
           <p id="hsc-cust-2-name" class="text-sm font-medium text-slate-800 truncate">—</p>
@@ -314,7 +314,7 @@
         <p id="hsc-cust-2-count" class="text-base font-bold text-slate-900 tabular-nums ml-3">—</p>
       </div>
       <!-- Row 3 -->
-      <div class="flex items-center px-5 py-4 border-b border-slate-100">
+      <div class="hsc-row flex items-center px-5 py-4 border-b border-slate-100 cursor-pointer hover:bg-slate-50 transition-colors" data-idx="2">
         <div class="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0 text-sm font-bold text-red-600">3</div>
         <div class="ml-4 flex-1 min-w-0">
           <p id="hsc-cust-3-name" class="text-sm font-medium text-slate-800 truncate">—</p>
@@ -322,7 +322,7 @@
         <p id="hsc-cust-3-count" class="text-base font-bold text-slate-900 tabular-nums ml-3">—</p>
       </div>
       <!-- Row 4 -->
-      <div class="flex items-center px-5 py-4 border-b border-slate-100">
+      <div class="hsc-row flex items-center px-5 py-4 border-b border-slate-100 cursor-pointer hover:bg-slate-50 transition-colors" data-idx="3">
         <div class="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0 text-sm font-bold text-red-600">4</div>
         <div class="ml-4 flex-1 min-w-0">
           <p id="hsc-cust-4-name" class="text-sm font-medium text-slate-800 truncate">—</p>
@@ -330,7 +330,7 @@
         <p id="hsc-cust-4-count" class="text-base font-bold text-slate-900 tabular-nums ml-3">—</p>
       </div>
       <!-- Row 5 -->
-      <div class="flex items-center px-5 py-4">
+      <div class="hsc-row flex items-center px-5 py-4 cursor-pointer hover:bg-slate-50 transition-colors" data-idx="4">
         <div class="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0 text-sm font-bold text-red-600">5</div>
         <div class="ml-4 flex-1 min-w-0">
           <p id="hsc-cust-5-name" class="text-sm font-medium text-slate-800 truncate">—</p>
@@ -836,17 +836,23 @@ function updateAll() {
     custCounts[cust] = (custCounts[cust] || 0) + 1;
   });
   const top3 = Object.entries(custCounts).sort((a, b) => b[1] - a[1]).slice(0, 5);
+  window._topNoSignCustomers = top3;
   for (let i = 0; i < 5; i++) {
+    const rowEl = document.querySelector(`.hsc-row[data-idx="${i}"]`);
     const nameEl = document.getElementById(`hsc-cust-${i+1}-name`);
     const countEl = document.getElementById(`hsc-cust-${i+1}-count`);
     if (top3[i]) {
       nameEl.textContent = top3[i][0];
       countEl.textContent = fmt(top3[i][1]);
+      if (rowEl) rowEl.dataset.customer = top3[i][0];
     } else {
       nameEl.textContent = '—';
       countEl.textContent = '—';
+      if (rowEl) rowEl.dataset.customer = '';
     }
   }
+  // Auto-select first customer for doughnut
+  if (top3.length > 0) renderDoughnut(top3[0][0]);
 
   document.getElementById('unsigned-count-badge').textContent = `${fmt(unsigned.length)} รายการ`;
   document.getElementById('signed-count-badge').textContent   = `${fmt(signed.length)} รายการ`;
@@ -923,15 +929,33 @@ const CHART_OPTS = {
   }
 };
 
-function renderDoughnut() {
+function renderDoughnut(customerName) {
+  // Build site counts for this customer (NoSign + ยังไม่สแกน)
+  let siteCounts = {};
+  if (customerName) {
+    const custData = DP_DATA.d.filter(r =>
+      r[FDOC] === 'NoSign' &&
+      (r[FDS] === null || r[FDS] === undefined) &&
+      (CU[r[FCU]] || '') === customerName
+    );
+    custData.forEach(r => {
+      const site = SI[r[FSI]] || 'ไม่ระบุ';
+      siteCounts[site] = (siteCounts[site] || 0) + 1;
+    });
+  }
+  const entries = Object.entries(siteCounts).sort((a, b) => b[1] - a[1]);
+  const labels = entries.map(e => e[0]);
+  const values = entries.map(e => e[1]);
+  const bgColors = ['#2563EB', '#D97706', '#059669', '#DC2626', '#7C3AED', '#0891B2', '#EA580C', '#16A34A'];
+
   if (chartDoughnut) chartDoughnut.destroy();
   chartDoughnut = new Chart(document.getElementById('chart-doughnut'), {
     type: 'doughnut',
     data: {
-      labels: ['SDA', 'Paper', 'EDP'],
+      labels: labels.length ? labels : ['ไม่มีข้อมูล'],
       datasets: [{
-        data: [30, 50, 20],
-        backgroundColor: ['#2563EB', '#D97706', '#059669'],
+        data: values.length ? values : [1],
+        backgroundColor: labels.length ? labels.map((_, i) => bgColors[i % bgColors.length]) : ['#cbd5e1'],
         borderWidth: 0,
         hoverOffset: 4
       }]
@@ -939,9 +963,23 @@ function renderDoughnut() {
     options: {
       responsive: true,
       maintainAspectRatio: false,
-      cutout: '65%',
+      cutout: '55%',
       plugins: {
-        legend: { position: 'bottom', labels: { font: { family: 'Noto Sans Thai', size: 11 }, boxWidth: 12, padding: 10 } }
+        title: {
+          display: true,
+          text: customerName ? `ไซต์งาน: ${customerName}` : 'ไซต์งาน',
+          font: { family: 'Noto Sans Thai', size: 13, weight: 'bold' },
+          padding: { bottom: 10 }
+        },
+        legend: {
+          position: 'bottom',
+          labels: { font: { family: 'Noto Sans Thai', size: 10 }, boxWidth: 10, padding: 8 }
+        },
+        tooltip: {
+          callbacks: {
+            label: item => ` ${item.label}: ${fmt(item.raw)} รายการ`
+          }
+        }
       }
     }
   });
@@ -1355,10 +1393,17 @@ document.getElementById('detail-search').addEventListener('input', e => {
 });
 
 // ─── Boot ─────────────────────────────────────────────────────────────────────
+// Horizontal Summary Card click handlers
+document.querySelectorAll('.hsc-row').forEach(row => {
+  row.addEventListener('click', () => {
+    const cust = row.dataset.customer;
+    if (cust) renderDoughnut(cust);
+  });
+});
+
 window.addEventListener('load', () => {
   initFilters();
   updateAll();
-  renderDoughnut();
   document.getElementById('loading').style.display = 'none';
 });
 </script>
