@@ -56,7 +56,10 @@
 </header>
 
 <!-- FILTER BAR -->
-<div class="border-b border-slate-200 px-6 py-2.5 flex flex-wrap gap-x-3 gap-y-2 items-center" style="background-color:#00bdf8">
+<div class="border-b border-slate-200 px-6 py-2.5 flex flex-col gap-y-2" style="background-color:#00bdf8">
+
+  <!-- Row 1: Logo + Filters -->
+  <div class="flex flex-wrap gap-x-3 gap-y-2 items-center">
 
   <!-- Logo -->
   <img src="image_up.png" alt="CPAC Logo" class="h-10 w-auto flex-shrink-0 mr-3">
@@ -96,8 +99,8 @@
     <button id="clear-site" class="text-white/70 hover:text-white text-lg leading-none" title="ล้าง">×</button>
   </div>
 
-  <!-- Doc type toggle -->
-  <div class="ml-auto flex items-center gap-1.5">
+  <!-- Row 2: Doc type toggle -->
+  <div class="flex justify-end items-center gap-1.5 pt-1">
     <span class="filter-label" style="color:#fff">ประเภท DP</span>
     <div class="flex rounded border border-white/40 overflow-hidden text-sm">
       <button data-grp="all" class="grp-btn active px-3 py-1.5 font-medium border-r border-white/40">ทั้งหมด</button>
