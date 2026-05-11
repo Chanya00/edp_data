@@ -341,7 +341,7 @@
     <!-- Doughnut Chart -->
     <div class="bg-white rounded-lg shadow-sm border border-slate-200 p-5 flex flex-col items-center justify-center">
       <h3 class="text-sm font-bold text-slate-800 mb-3">สัดส่วน DP ตามประเภท</h3>
-      <div class="relative" style="width: 220px; height: 220px;">
+      <div class="relative" style="width: 320px; height: 320px;">
         <canvas id="chart-doughnut"></canvas>
       </div>
     </div>
@@ -963,21 +963,38 @@ function renderDoughnut(customerName) {
     options: {
       responsive: true,
       maintainAspectRatio: false,
-      cutout: '55%',
+      cutout: '40%',
       plugins: {
         title: {
           display: true,
           text: customerName ? `ไซต์งาน: ${customerName}` : 'ไซต์งาน',
-          font: { family: 'Noto Sans Thai', size: 13, weight: 'bold' },
+          font: { family: 'Noto Sans Thai', size: 14, weight: 'bold' },
           padding: { bottom: 10 }
         },
         legend: {
           position: 'bottom',
-          labels: { font: { family: 'Noto Sans Thai', size: 10 }, boxWidth: 10, padding: 8 }
+          labels: {
+            font: { family: 'Noto Sans Thai', size: 12 },
+            boxWidth: 14,
+            padding: 10,
+            generateLabels: chart => {
+              const ds = chart.data.datasets[0];
+              return chart.data.labels.map((label, i) => ({
+                text: label.length > 22 ? label.slice(0, 20) + '…' : label,
+                fullText: label,
+                fillStyle: ds.backgroundColor[i],
+                hidden: false,
+                index: i
+              }));
+            }
+          }
         },
         tooltip: {
           callbacks: {
-            label: item => ` ${item.label}: ${fmt(item.raw)} รายการ`
+            label: item => {
+              const fullLabel = item.chart.data.labels[item.dataIndex];
+              return ` ${fullLabel}: ${fmt(item.raw)} รายการ`;
+            }
           }
         }
       }
