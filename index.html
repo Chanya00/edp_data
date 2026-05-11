@@ -980,12 +980,19 @@ function renderDoughnut(customerName) {
         const siteName = row.dataset.site;
         const searchInput = document.getElementById('detail-search');
         if (searchInput) {
+          // Clear customer & site filters so search finds the site across all customers
+          state.cust = '';
+          state.site = '';
+          document.getElementById('f-cust').value = '';
+          document.getElementById('f-site').value = '';
           searchInput.value = siteName;
           state.detailSearch = siteName;
           detailPage = 1;
-          renderDetailTable(filterDetailData(getFiltered()));
+          updateAll();
           // Scroll to detail table
-          document.getElementById('detail-table').scrollIntoView({ behavior: 'smooth', block: 'start' });
+          setTimeout(() => {
+            document.getElementById('detail-table').scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }, 100);
         }
       });
     });
