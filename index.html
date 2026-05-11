@@ -292,8 +292,8 @@
 
 <!-- HORIZONTAL SUMMARY CARD -->
 <div class="px-6 pt-3 pb-3">
-  <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-    <div class="bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden">
+  <div class="grid grid-cols-1 lg:grid-cols-5 gap-4">
+    <div class="bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden lg:col-span-2">
       <div class="px-5 py-2.5 border-b border-slate-200 bg-slate-50">
         <h3 class="text-sm font-bold text-slate-800">ไซต์งานที่ไม่ได้ลงนาม</h3>
       </div>
@@ -339,7 +339,7 @@
       </div>
     </div>
     <!-- Doughnut Chart -->
-    <div class="bg-white rounded-lg shadow-sm border border-slate-200 p-5 flex flex-col">
+    <div class="bg-white rounded-lg shadow-sm border border-slate-200 p-5 flex flex-col lg:col-span-3">
       <!-- Top: Site list (left) + Chart (right) -->
       <div class="flex flex-1 gap-4 items-center">
         <!-- Left: Site list -->
@@ -955,7 +955,7 @@ function renderDoughnut(customerName) {
       siteCounts[site] = (siteCounts[site] || 0) + 1;
     });
   }
-  const entries = Object.entries(siteCounts).sort((a, b) => b[1] - a[1]);
+  const entries = Object.entries(siteCounts).sort((a, b) => b[1] - a[1]).slice(0, 10);
   const labels = entries.map(e => e[0]);
   const values = entries.map(e => e[1]);
   const bgColors = ['#2563EB', '#D97706', '#059669', '#DC2626', '#7C3AED', '#0891B2', '#EA580C', '#16A34A'];
