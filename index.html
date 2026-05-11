@@ -314,12 +314,35 @@
         <p id="hsc-cust-2-count" class="text-base font-bold text-slate-900 tabular-nums ml-3">—</p>
       </div>
       <!-- Row 3 -->
-      <div class="flex items-center px-5 py-4">
+      <div class="flex items-center px-5 py-4 border-b border-slate-100">
         <div class="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0 text-sm font-bold text-red-600">3</div>
         <div class="ml-4 flex-1 min-w-0">
           <p id="hsc-cust-3-name" class="text-sm font-medium text-slate-800 truncate">—</p>
         </div>
         <p id="hsc-cust-3-count" class="text-base font-bold text-slate-900 tabular-nums ml-3">—</p>
+      </div>
+      <!-- Row 4 -->
+      <div class="flex items-center px-5 py-4 border-b border-slate-100">
+        <div class="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0 text-sm font-bold text-red-600">4</div>
+        <div class="ml-4 flex-1 min-w-0">
+          <p id="hsc-cust-4-name" class="text-sm font-medium text-slate-800 truncate">—</p>
+        </div>
+        <p id="hsc-cust-4-count" class="text-base font-bold text-slate-900 tabular-nums ml-3">—</p>
+      </div>
+      <!-- Row 5 -->
+      <div class="flex items-center px-5 py-4">
+        <div class="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0 text-sm font-bold text-red-600">5</div>
+        <div class="ml-4 flex-1 min-w-0">
+          <p id="hsc-cust-5-name" class="text-sm font-medium text-slate-800 truncate">—</p>
+        </div>
+        <p id="hsc-cust-5-count" class="text-base font-bold text-slate-900 tabular-nums ml-3">—</p>
+      </div>
+    </div>
+    <!-- Doughnut Chart -->
+    <div class="bg-white rounded-lg shadow-sm border border-slate-200 p-5 flex flex-col items-center justify-center">
+      <h3 class="text-sm font-bold text-slate-800 mb-3">สัดส่วน DP ตามประเภท</h3>
+      <div class="relative" style="width: 220px; height: 220px;">
+        <canvas id="chart-doughnut"></canvas>
       </div>
     </div>
   </div>
@@ -562,7 +585,7 @@ const [FDV,FDE,FSE,FPL,FGR,FCU,FSI,FQTY,FDU,FDS,FDPW,FUPW,FMON,FDPNO,FDPDATE,FUP
 const DEFAULT_DIVISION = 'CPAC Metro';
 const DEFAULT_MONTH = new Date().toISOString().slice(0, 7);
 const state = { div:'', dept:'', sect:'', plant:'', cust:'', site:'', grp:'all', month: DEFAULT_MONTH, detailSearch: '' };
-let chartU = null, chartS = null;
+let chartU = null, chartS = null, chartDoughnut = null;
 let detailPage = 1;
 const DETAIL_PAGE_SIZE = 100;
 const expandedDivisions = new Set();
@@ -812,8 +835,8 @@ function updateAll() {
     const cust = CU[r[FCU]] || 'ไม่ระบุ';
     custCounts[cust] = (custCounts[cust] || 0) + 1;
   });
-  const top3 = Object.entries(custCounts).sort((a, b) => b[1] - a[1]).slice(0, 3);
-  for (let i = 0; i < 3; i++) {
+  const top3 = Object.entries(custCounts).sort((a, b) => b[1] - a[1]).slice(0, 5);
+  for (let i = 0; i < 5; i++) {
     const nameEl = document.getElementById(`hsc-cust-${i+1}-name`);
     const countEl = document.getElementById(`hsc-cust-${i+1}-count`);
     if (top3[i]) {
@@ -899,6 +922,30 @@ const CHART_OPTS = {
          ticks:{font:{family:'Sarabun',size:11}, callback: v => v>=1000?(v/1000).toFixed(0)+'k':v} }
   }
 };
+
+function renderDoughnut() {
+  if (chartDoughnut) chartDoughnut.destroy();
+  chartDoughnut = new Chart(document.getElementById('chart-doughnut'), {
+    type: 'doughnut',
+    data: {
+      labels: ['SDA', 'Paper', 'EDP'],
+      datasets: [{
+        data: [30, 50, 20],
+        backgroundColor: ['#2563EB', '#D97706', '#059669'],
+        borderWidth: 0,
+        hoverOffset: 4
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      cutout: '65%',
+      plugins: {
+        legend: { position: 'bottom', labels: { font: { family: 'Noto Sans Thai', size: 11 }, boxWidth: 12, padding: 10 } }
+      }
+    }
+  });
+}
 
 function renderCharts(unsigned, signed) {
   const uB = buildBuckets(unsigned, FDU, U_BUCKETS);
@@ -1311,6 +1358,7 @@ document.getElementById('detail-search').addEventListener('input', e => {
 window.addEventListener('load', () => {
   initFilters();
   updateAll();
+  renderDoughnut();
   document.getElementById('loading').style.display = 'none';
 });
 </script>
