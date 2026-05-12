@@ -1069,24 +1069,17 @@ function renderDoughnut(customerName) {
       row.addEventListener('click', () => {
         const siteName = row.dataset.site;
         window._kpiSelectedSite = siteName;
-        const searchInput = document.getElementById('detail-search');
-        if (searchInput) {
-          // Clear customer & site filters so search finds the site across all customers
-          state.cust = '';
-          state.site = '';
-          document.getElementById('f-cust').value = '';
-          document.getElementById('f-site').value = '';
-          searchInput.value = siteName;
-          state.detailSearch = siteName;
-          detailPage = 1;
-          updateAll();
-          // Update KPI cards after detail table update
-          updateKpiCards(getFiltered());
-          // Scroll to detail table
-          setTimeout(() => {
-            document.getElementById('detail-table').scrollIntoView({ behavior: 'smooth', block: 'start' });
-          }, 100);
-        }
+        // Update KPI cards only (do not refresh doughnut/summary)
+        updateKpiCards(getFiltered());
+        // Update detail table search (do not scroll, do not refresh doughnut)
+        state.cust = '';
+        state.site = '';
+        document.getElementById('f-cust').value = '';
+        document.getElementById('f-site').value = '';
+        document.getElementById('detail-search').value = siteName;
+        state.detailSearch = siteName;
+        detailPage = 1;
+        renderDetailTable(filterDetailData(getFiltered()));
       });
     });
   } else if (listEl) {
