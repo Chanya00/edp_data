@@ -399,6 +399,35 @@
   </div>
 </div>
 
+<!-- NEW KPI CARDS -->
+<div class="px-6 pt-3 pb-3">
+  <div class="grid grid-cols-2 gap-3">
+    <!-- Card 1: จำนวนใบลงนาม -->
+    <div class="bg-white rounded-lg p-4 shadow-sm border border-slate-200">
+      <div class="flex items-center gap-2">
+        <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+        </svg>
+        <p class="text-sm font-semibold text-slate-500 uppercase tracking-wide">จำนวนใบลงนาม</p>
+      </div>
+      <p id="kpi-dp-count" class="text-3xl font-bold text-slate-900 mt-1.5 tabular-nums">0</p>
+      <p class="text-xs text-slate-400 mt-1.5">ใบ</p>
+    </div>
+    <!-- Card 2: จำนวนวันที่ล้าช้า -->
+    <div class="bg-white rounded-lg p-4 shadow-sm border border-slate-200">
+      <div class="flex items-center gap-2">
+        <svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 7v1m0 8h.01"></path>
+        </svg>
+        <p class="text-sm font-semibold text-slate-500 uppercase tracking-wide">จำนวนวันที่ล้าช้า</p>
+      </div>
+      <p id="kpi-delay-days" class="text-3xl font-bold text-slate-900 mt-1.5 tabular-nums">0</p>
+      <p class="text-xs text-slate-400 mt-1.5">วัน</p>
+    </div>
+  </div>
+</div>
+
 <!-- DETAIL TABLE -->
 <div class="px-6 pb-8">
   <div class="bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden">
@@ -904,6 +933,12 @@ function updateAll() {
   }
   // Auto-select first customer for doughnut
   if (top3.length > 0) renderDoughnut(top3[0][0]);
+
+  // New KPIs: จำนวนใบลงนาม + จำนวนวันที่ล้าช้า (NoSign + unsigned only)
+  const avgDelayDays = noSignData.length
+    ? (noSignData.reduce((s,r) => s + (r[FDU]||0), 0) / noSignData.length).toFixed(1) : '—';
+  document.getElementById('kpi-dp-count').textContent   = fmt(noSignData.length);
+  document.getElementById('kpi-delay-days').textContent = avgDelayDays;
 
   document.getElementById('unsigned-count-badge').textContent = `${fmt(unsigned.length)} รายการ`;
   document.getElementById('signed-count-badge').textContent   = `${fmt(signed.length)} รายการ`;
