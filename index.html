@@ -933,8 +933,6 @@ function updateAll() {
   });
   const top3 = Object.entries(custCounts).sort((a, b) => b[1] - a[1]).slice(0, 5);
   window._topNoSignCustomers = top3;
-  window._kpiSelectedCust = null;
-  window._kpiSelectedSite = null;
   for (let i = 0; i < 5; i++) {
     const rowEl = document.querySelector(`.hsc-row[data-idx="${i}"]`);
     const nameEl = document.getElementById(`hsc-cust-${i+1}-name`);
@@ -1031,8 +1029,6 @@ const CHART_OPTS = {
 };
 
 function renderDoughnut(customerName) {
-  window._kpiSelectedCust = customerName || null;
-  window._kpiSelectedSite = null;
   // Build site counts for this customer (NoSign + ยังไม่สแกน)
   let siteCounts = {};
   if (customerName) {
@@ -1537,7 +1533,12 @@ document.getElementById('detail-search').addEventListener('input', e => {
 document.querySelectorAll('.hsc-row').forEach(row => {
   row.addEventListener('click', () => {
     const cust = row.dataset.customer;
-    if (cust) renderDoughnut(cust);
+    if (cust) {
+      window._kpiSelectedCust = cust;
+      window._kpiSelectedSite = null;
+      renderDoughnut(cust);
+      updateKpiCards(getFiltered());
+    }
   });
 });
 
