@@ -1,0 +1,1662 @@
+<!DOCTYPE html>
+<!-- saved from url=(0040)https://e-dp.vercel.app/dp_tracking.html -->
+<html lang="th"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CPAC eDP — DP Signing Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="./CPAC eDP — DP Signing Tracker_files/saved_resource"></script>
+<script src="./CPAC eDP — DP Signing Tracker_files/chart.umd.min.js.download"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  body { font-family: 'Sarabun', sans-serif; margin: 0; background: #F5F6F8; color: #111827; font-size: 14px; line-height: 1.5; }
+  select, input, button { font-family: 'Sarabun', sans-serif; }
+  .grp-btn.active  { background: #171717; color: #fff; }
+  .grp-btn:not(.active) { background: transparent; color: #374151; }
+  .grp-btn:not(.active):hover { background: #F5F6F8; }
+  #loading { position:fixed; inset:0; background:rgba(255,255,255,0.95); display:flex; flex-direction:column; align-items:center; justify-content:center; z-index:100; }
+  .spinner { width:40px; height:40px; border:4px solid #D8DDE6; border-top-color:#2563EB; border-radius:50%; animation:spin 0.8s linear infinite; }
+  @keyframes spin { to { transform:rotate(360deg); } }
+  .badge-sda   { background:#2563EB; color:#FFFFFF; border-radius: 9999px; }
+  .badge-paper { background:#B45309; color:#FFFFFF; border-radius: 9999px; }
+  .badge-edp   { background:#047857; color:#FFFFFF; border-radius: 9999px; }
+  tr:hover td  { background:#F5F6F8; }
+  .filter-label { font-size:12px; color:#4B5563; white-space:nowrap; font-weight: 500; letter-spacing: 0.08em; }
+  .f-sel { font-size:14px; border:1px solid #DDE3EA; border-radius:8px; padding:5px 8px; background:#fff; min-width:110px; color: #111827; }
+  .f-sel:focus { border-color:#2563EB; outline:none; box-shadow: none; }
+  select.month-sel { font-size:14px; border:1px solid #DDE3EA; border-radius:8px; padding:5px 8px; background:#fff; min-width:120px; color: #111827; }
+  select.month-sel:focus { border-color:#2563EB; outline:none; box-shadow: none; }
+  input[type="date"] { font-family: 'Sarabun', sans-serif; color: #111827; }
+  input[type="date"]::-webkit-calendar-picker-indicator { opacity: 0.5; cursor: pointer; }
+  input[type="date"]:invalid::-webkit-datetime-edit { color: transparent; }
+  input[type="date"]:focus::-webkit-datetime-edit { color: #111827; }
+  .kpi-grid { display: grid; gap: 0.75rem; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  @media (min-width: 1024px) { .kpi-grid { grid-template-columns: 5fr 2.3fr 2.3fr 2.3fr; } }
+
+  /* ─── ERP UI Blueprint arbitrary-value utilities ─── */
+  .text-\[\#111827\] { color: #111827; }
+  .text-\[\#4B5563\] { color: #4B5563; }
+  .text-\[\#374151\] { color: #374151; }
+  .text-\[\#2563EB\] { color: #2563EB; }
+  .text-\[\#047857\] { color: #047857; }
+  .text-\[\#B45309\] { color: #B45309; }
+  .text-\[\#B91C1C\] { color: #B91C1C; }
+  .bg-\[\#F5F6F8\] { background-color: #F5F6F8; }
+  .bg-\[\#171717\] { background-color: #171717; }
+  .bg-\[\#2563EB\] { background-color: #2563EB; }
+  .bg-\[\#2563EB\].bg-opacity-10 { background-color: rgba(37, 99, 235, 0.1); }
+  .border-\[\#D8DDE6\] { border-color: #D8DDE6; }
+  .border-r-\[\#D8DDE6\] { border-right-color: #D8DDE6; }
+  .border-b-\[\#D8DDE6\] { border-bottom-color: #D8DDE6; }
+  .border-t-\[\#D8DDE6\] { border-top-color: #D8DDE6; }
+  .border-\[\#DDE3EA\] { border-color: #DDE3EA; }
+  .hover\:bg-\[\#F5F6F8\]:hover { background-color: #F5F6F8; }
+  .hover\:text-\[\#2563EB\]:hover { color: #2563EB; }
+  .hover\:text-\[\#111827\]:hover { color: #111827; }
+  .hover\:text-\[\#4B5563\]:hover { color: #4B5563; }
+  .hover\:text-\[\#374151\]:hover { color: #374151; }
+  .focus\:border-\[\#2563EB\]:focus { border-color: #2563EB; }
+  .filter-grid { display: grid; gap: 12px; grid-template-columns: 1fr; }
+  @media (min-width: 768px) { .filter-grid { grid-template-columns: repeat(4, 1fr); } }
+
+  /* ─── Mobile Responsive (≤768px) ─── */
+  @media (max-width: 768px) {
+    /* Reduce global padding */
+    .px-6 { padding-left: 12px !important; padding-right: 12px !important; }
+
+    /* Header: hide badges & shrink title */
+    header .badge-sda, header .badge-paper, header .badge-edp { display: none !important; }
+    header h1 { font-size: 14px !important; }
+
+    /* Filter bar: full-width dropdowns */
+    .f-sel { width: 100% !important; min-width: 100% !important; }
+    #f-div, #f-dept, #f-sect, #f-plant, #f-cust { min-width: 100% !important; }
+
+    /* KPI Cards: single column */
+    .grid-cols-2 { grid-template-columns: repeat(1, minmax(0, 1fr)) !important; }
+
+    /* Horizontal Summary + Doughnut: single column */
+    .lg\:col-span-2, .lg\:col-span-3 { grid-column: span 5 / span 5 !important; }
+    .lg\:grid-cols-5 { grid-template-columns: repeat(1, minmax(0, 1fr)) !important; }
+
+    /* Doughnut card: stack vertically */
+    .lg\:col-span-3 > div:first-child { flex-direction: column !important; align-items: stretch !important; }
+    .lg\:col-span-3 canvas { width: 180px !important; height: 180px !important; margin: 0 auto; }
+
+    /* Site list scroll if many */
+    #doughnut-site-list { max-height: 240px; overflow-y: auto; }
+
+    /* Tables: horizontal scroll */
+    .overflow-x-auto { display: block !important; width: 100vw; margin-left: -12px; margin-right: -12px; padding-left: 12px; padding-right: 12px; }
+    table { min-width: 900px; }
+
+    /* Detail search: full width */
+    #detail-search { width: 100% !important; }
+
+    /* Reduce section padding */
+    .py-2\.5 { padding-top: 8px !important; padding-bottom: 8px !important; }
+    .py-3 { padding-top: 10px !important; padding-bottom: 10px !important; }
+  }
+</style>
+<style>*, ::before, ::after{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }::backdrop{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }/* ! tailwindcss v3.4.17 | MIT License | https://tailwindcss.com */*,::after,::before{box-sizing:border-box;border-width:0;border-style:solid;border-color:#e5e7eb}::after,::before{--tw-content:''}:host,html{line-height:1.5;-webkit-text-size-adjust:100%;-moz-tab-size:4;tab-size:4;font-family:ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";font-feature-settings:normal;font-variation-settings:normal;-webkit-tap-highlight-color:transparent}body{margin:0;line-height:inherit}hr{height:0;color:inherit;border-top-width:1px}abbr:where([title]){-webkit-text-decoration:underline dotted;text-decoration:underline dotted}h1,h2,h3,h4,h5,h6{font-size:inherit;font-weight:inherit}a{color:inherit;text-decoration:inherit}b,strong{font-weight:bolder}code,kbd,pre,samp{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;font-feature-settings:normal;font-variation-settings:normal;font-size:1em}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}table{text-indent:0;border-color:inherit;border-collapse:collapse}button,input,optgroup,select,textarea{font-family:inherit;font-feature-settings:inherit;font-variation-settings:inherit;font-size:100%;font-weight:inherit;line-height:inherit;letter-spacing:inherit;color:inherit;margin:0;padding:0}button,select{text-transform:none}button,input:where([type=button]),input:where([type=reset]),input:where([type=submit]){-webkit-appearance:button;background-color:transparent;background-image:none}:-moz-focusring{outline:auto}:-moz-ui-invalid{box-shadow:none}progress{vertical-align:baseline}::-webkit-inner-spin-button,::-webkit-outer-spin-button{height:auto}[type=search]{-webkit-appearance:textfield;outline-offset:-2px}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-file-upload-button{-webkit-appearance:button;font:inherit}summary{display:list-item}blockquote,dd,dl,figure,h1,h2,h3,h4,h5,h6,hr,p,pre{margin:0}fieldset{margin:0;padding:0}legend{padding:0}menu,ol,ul{list-style:none;margin:0;padding:0}dialog{padding:0}textarea{resize:vertical}input::placeholder,textarea::placeholder{opacity:1;color:#9ca3af}[role=button],button{cursor:pointer}:disabled{cursor:default}audio,canvas,embed,iframe,img,object,svg,video{display:block;vertical-align:middle}img,video{max-width:100%;height:auto}[hidden]:where(:not([hidden=until-found])){display:none}.sticky{position:sticky}.top-0{top:0px}.z-10{z-index:10}.mx-1{margin-left:0.25rem;margin-right:0.25rem}.mb-3{margin-bottom:0.75rem}.mb-4{margin-bottom:1rem}.ml-auto{margin-left:auto}.mt-0\.5{margin-top:0.125rem}.mt-1{margin-top:0.25rem}.mt-1\.5{margin-top:0.375rem}.flex{display:flex}.grid{display:grid}.h-5{height:1.25rem}.h-8{height:2rem}.h-1\.5{height:0.375rem}.h-full{height:100%}.min-h-screen{min-height:100vh}.w-5{width:1.25rem}.w-8{width:2rem}.w-full{width:100%}.w-px{width:1px}.w-12{width:3rem}.w-14{width:3.5rem}.max-w-xs{max-width:20rem}.flex-shrink-0{flex-shrink:0}.grid-cols-1{grid-template-columns:repeat(1, minmax(0, 1fr))}.grid-cols-2{grid-template-columns:repeat(2, minmax(0, 1fr))}.flex-wrap{flex-wrap:wrap}.items-start{align-items:flex-start}.items-center{align-items:center}.justify-end{justify-content:flex-end}.justify-center{justify-content:center}.justify-between{justify-content:space-between}.gap-1{gap:0.25rem}.gap-1\.5{gap:0.375rem}.gap-2{gap:0.5rem}.gap-3{gap:0.75rem}.gap-4{gap:1rem}.gap-x-3{column-gap:0.75rem}.gap-y-2{row-gap:0.5rem}.self-center{align-self:center}.overflow-hidden{overflow:hidden}.overflow-x-auto{overflow-x:auto}.truncate{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.whitespace-nowrap{white-space:nowrap}.rounded{border-radius:0.25rem}.rounded-lg{border-radius:0.5rem}.rounded-full{border-radius:9999px}.border{border-width:1px}.border-b{border-bottom-width:1px}.border-r{border-right-width:1px}.border-blue-100{--tw-border-opacity:1;border-color:rgb(219 234 254 / var(--tw-border-opacity, 1))}.border-green-100{--tw-border-opacity:1;border-color:rgb(220 252 231 / var(--tw-border-opacity, 1))}.border-red-100{--tw-border-opacity:1;border-color:rgb(254 226 226 / var(--tw-border-opacity, 1))}.border-slate-200{--tw-border-opacity:1;border-color:rgb(226 232 240 / var(--tw-border-opacity, 1))}.border-slate-300{--tw-border-opacity:1;border-color:rgb(203 213 225 / var(--tw-border-opacity, 1))}.border-slate-100{--tw-border-opacity:1;border-color:rgb(241 245 249 / var(--tw-border-opacity, 1))}.bg-blue-600{--tw-bg-opacity:1;background-color:rgb(37 99 235 / var(--tw-bg-opacity, 1))}.bg-green-50{--tw-bg-opacity:1;background-color:rgb(240 253 244 / var(--tw-bg-opacity, 1))}.bg-red-50{--tw-bg-opacity:1;background-color:rgb(254 242 242 / var(--tw-bg-opacity, 1))}.bg-slate-200{--tw-bg-opacity:1;background-color:rgb(226 232 240 / var(--tw-bg-opacity, 1))}.bg-slate-50{--tw-bg-opacity:1;background-color:rgb(248 250 252 / var(--tw-bg-opacity, 1))}.bg-white{--tw-bg-opacity:1;background-color:rgb(255 255 255 / var(--tw-bg-opacity, 1))}.bg-red-400{--tw-bg-opacity:1;background-color:rgb(248 113 113 / var(--tw-bg-opacity, 1))}.bg-slate-100{--tw-bg-opacity:1;background-color:rgb(241 245 249 / var(--tw-bg-opacity, 1))}.p-4{padding:1rem}.p-5{padding:1.25rem}.px-1\.5{padding-left:0.375rem;padding-right:0.375rem}.px-2{padding-left:0.5rem;padding-right:0.5rem}.px-3{padding-left:0.75rem;padding-right:0.75rem}.px-4{padding-left:1rem;padding-right:1rem}.px-5{padding-left:1.25rem;padding-right:1.25rem}.px-6{padding-left:1.5rem;padding-right:1.5rem}.py-0\.5{padding-top:0.125rem;padding-bottom:0.125rem}.py-1{padding-top:0.25rem;padding-bottom:0.25rem}.py-1\.5{padding-top:0.375rem;padding-bottom:0.375rem}.py-2\.5{padding-top:0.625rem;padding-bottom:0.625rem}.py-3{padding-top:0.75rem;padding-bottom:0.75rem}.pb-3{padding-bottom:0.75rem}.pb-4{padding-bottom:1rem}.pb-8{padding-bottom:2rem}.pt-4{padding-top:1rem}.text-left{text-align:left}.text-right{text-align:right}.text-3xl{font-size:1.875rem;line-height:2.25rem}.text-base{font-size:1rem;line-height:1.5rem}.text-lg{font-size:1.125rem;line-height:1.75rem}.text-sm{font-size:0.875rem;line-height:1.25rem}.text-xs{font-size:0.75rem;line-height:1rem}.font-bold{font-weight:700}.font-medium{font-weight:500}.font-semibold{font-weight:600}.uppercase{text-transform:uppercase}.tabular-nums{--tw-numeric-spacing:tabular-nums;font-variant-numeric:var(--tw-ordinal) var(--tw-slashed-zero) var(--tw-numeric-figure) var(--tw-numeric-spacing) var(--tw-numeric-fraction)}.leading-none{line-height:1}.leading-tight{line-height:1.25}.tracking-wide{letter-spacing:0.025em}.text-amber-500{--tw-text-opacity:1;color:rgb(245 158 11 / var(--tw-text-opacity, 1))}.text-blue-400{--tw-text-opacity:1;color:rgb(96 165 250 / var(--tw-text-opacity, 1))}.text-blue-500{--tw-text-opacity:1;color:rgb(59 130 246 / var(--tw-text-opacity, 1))}.text-blue-600{--tw-text-opacity:1;color:rgb(37 99 235 / var(--tw-text-opacity, 1))}.text-emerald-600{--tw-text-opacity:1;color:rgb(5 150 105 / var(--tw-text-opacity, 1))}.text-green-500{--tw-text-opacity:1;color:rgb(34 197 94 / var(--tw-text-opacity, 1))}.text-green-600{--tw-text-opacity:1;color:rgb(22 163 74 / var(--tw-text-opacity, 1))}.text-orange-500{--tw-text-opacity:1;color:rgb(249 115 22 / var(--tw-text-opacity, 1))}.text-red-400{--tw-text-opacity:1;color:rgb(248 113 113 / var(--tw-text-opacity, 1))}.text-red-500{--tw-text-opacity:1;color:rgb(239 68 68 / var(--tw-text-opacity, 1))}.text-red-600{--tw-text-opacity:1;color:rgb(220 38 38 / var(--tw-text-opacity, 1))}.text-slate-300{--tw-text-opacity:1;color:rgb(203 213 225 / var(--tw-text-opacity, 1))}.text-slate-400{--tw-text-opacity:1;color:rgb(148 163 184 / var(--tw-text-opacity, 1))}.text-slate-500{--tw-text-opacity:1;color:rgb(100 116 139 / var(--tw-text-opacity, 1))}.text-slate-600{--tw-text-opacity:1;color:rgb(71 85 105 / var(--tw-text-opacity, 1))}.text-slate-800{--tw-text-opacity:1;color:rgb(30 41 59 / var(--tw-text-opacity, 1))}.text-slate-900{--tw-text-opacity:1;color:rgb(15 23 42 / var(--tw-text-opacity, 1))}.text-white{--tw-text-opacity:1;color:rgb(255 255 255 / var(--tw-text-opacity, 1))}.text-amber-600{--tw-text-opacity:1;color:rgb(217 119 6 / var(--tw-text-opacity, 1))}.text-blue-700{--tw-text-opacity:1;color:rgb(29 78 216 / var(--tw-text-opacity, 1))}.shadow-sm{--tw-shadow:0 1px 2px 0 rgb(0 0 0 / 0.05);--tw-shadow-colored:0 1px 2px 0 var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.hover\:text-slate-700:hover{--tw-text-opacity:1;color:rgb(51 65 85 / var(--tw-text-opacity, 1))}.focus\:border-blue-400:focus{--tw-border-opacity:1;border-color:rgb(96 165 250 / var(--tw-border-opacity, 1))}.focus\:outline-none:focus{outline:2px solid transparent;outline-offset:2px}.focus\:ring-2:focus{--tw-ring-offset-shadow:var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);--tw-ring-shadow:var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color);box-shadow:var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000)}.focus\:ring-blue-100:focus{--tw-ring-opacity:1;--tw-ring-color:rgb(219 234 254 / var(--tw-ring-opacity, 1))}@media (min-width: 1024px){.lg\:grid-cols-2{grid-template-columns:repeat(2, minmax(0, 1fr))}.lg\:grid-cols-5{grid-template-columns:repeat(5, minmax(0, 1fr))}}</style></head>
+<body class="min-h-screen">
+
+<!-- Loading -->
+<div id="loading" style="display: none;">
+  <div class="spinner mb-4"></div>
+  <p class="text-[#374151] font-medium">กำลังโหลดข้อมูล DP...</p>
+  <p class="text-[#4B5563] text-sm mt-1">234,556 รายการ</p>
+</div>
+
+<!-- HEADER -->
+<header class="bg-white border-b border-[#D8DDE6] px-6 py-3 flex items-center justify-between sticky top-0 z-10">
+  <div class="flex items-center gap-3">
+    <img src="image_up.png" alt="CPAC Logo" class="h-10 w-auto flex-shrink-0">
+    <h1 class="text-base font-semibold text-[#111827] leading-tight">CPAC eDP — DP Signing Tracker</h1>
+  </div>
+  <div class="flex items-center gap-2">
+    <span class="filter-label text-[#4B5563]">เดือน</span>
+    <select id="f-month" class="month-sel">
+      <option value="2026-03">มีนาคม 2569</option>
+      <option value="2026-04">เมษายน 2569</option>
+    </select>
+  </div>
+</header>
+
+<!-- FILTER BAR -->
+<div class="border-b border-[#D8DDE6] px-6 py-3 bg-white">
+  <div class="filter-grid items-end">
+
+  <!-- Organization cascade: Division → Dept → Section -->
+  <div class="flex flex-col gap-1">
+    <span class="filter-label text-[#4B5563]">กิจการ</span>
+    <select id="f-div" class="f-sel w-full"><option value="">ทุก กิจการ</option><option value="CPAC East">CPAC East</option><option value="CPAC Metro">CPAC Metro</option><option value="CPAC North">CPAC North</option><option value="CPAC Northeast">CPAC Northeast</option><option value="CPAC West">CPAC West</option><option value="RMC - South Chain">RMC - South Chain</option></select>
+  </div>
+  <div class="flex flex-col gap-1">
+    <span class="filter-label text-[#4B5563]">ภาค</span>
+    <select id="f-dept" class="f-sel w-full"><option value="">ทุก ภาค</option><option value="East 1">East 1</option><option value="East 2">East 2</option><option value="East 3">East 3</option><option value="Metro 1">Metro 1</option><option value="Metro 2">Metro 2</option><option value="Metro 3">Metro 3</option><option value="North 1">North 1</option><option value="North 2">North 2</option><option value="North 3">North 3</option><option value="Northeast 1">Northeast 1</option><option value="Northeast 2">Northeast 2</option><option value="Northeast 3">Northeast 3</option><option value="South 1">South 1</option><option value="South 2">South 2</option><option value="West 1">West 1</option><option value="West 2">West 2</option></select>
+  </div>
+  <div class="flex flex-col gap-1">
+    <span class="filter-label text-[#4B5563]">แผนก</span>
+    <select id="f-sect" class="f-sel w-full"><option value="">ทุก แผนก</option><option value="ผลิตฉะเชิงเทรา">ผลิตฉะเชิงเทรา</option><option value="ผลิตบ่อวิน">ผลิตบ่อวิน</option><option value="ผลิตปราจีนบุรี">ผลิตปราจีนบุรี</option><option value="ผลิตพานทอง">ผลิตพานทอง</option><option value="ผลิตระยอง">ผลิตระยอง</option><option value="ผลิตศรีราชา">ผลิตศรีราชา</option><option value="ผลิตสระบุรี">ผลิตสระบุรี</option><option value="Prod.ขอนแก่น">Prod.ขอนแก่น</option><option value="Prod.โคราช-เขาใหญ่">Prod.โคราช-เขาใหญ่</option><option value="Prod.โคราช-ชัยภูมิ">Prod.โคราช-ชัยภูมิ</option><option value="Prod.โคราช-หัวทะเล">Prod.โคราช-หัวทะเล</option><option value="Prod.เชียงราย">Prod.เชียงราย</option><option value="Prod.เชียงใหม่1">Prod.เชียงใหม่1</option><option value="Prod.เชียงใหม่2">Prod.เชียงใหม่2</option><option value="Prod.นครปฐม">Prod.นครปฐม</option><option value="Prod.นครศรีธรรมราช">Prod.นครศรีธรรมราช</option><option value="Prod.นครสวรรค์">Prod.นครสวรรค์</option><option value="Prod.บางซื่อ">Prod.บางซื่อ</option><option value="Prod.บางนา">Prod.บางนา</option><option value="Prod.บางบัวทอง">Prod.บางบัวทอง</option><option value="Prod.บุรีรัมย์">Prod.บุรีรัมย์</option><option value="Prod.พระราม 2">Prod.พระราม 2</option><option value="Prod.พระราม 4">Prod.พระราม 4</option><option value="Prod.พระราม 9">Prod.พระราม 9</option><option value="Prod.พิษณุโลก">Prod.พิษณุโลก</option><option value="Prod.เพชรบุรี">Prod.เพชรบุรี</option><option value="Prod.ภูเก็ต">Prod.ภูเก็ต</option><option value="Prod.ร้อยเอ็ด">Prod.ร้อยเอ็ด</option><option value="Prod.รังสิต">Prod.รังสิต</option><option value="Prod.รามอินทรา">Prod.รามอินทรา</option><option value="Prod.ลำปาง">Prod.ลำปาง</option><option value="Prod.สกลนคร">Prod.สกลนคร</option><option value="Prod.สงขลา">Prod.สงขลา</option><option value="Prod.สมุทรสาคร">Prod.สมุทรสาคร</option><option value="Prod.สุราษฏร์ธานี">Prod.สุราษฏร์ธานี</option><option value="Prod.สุวรรณภูมิ">Prod.สุวรรณภูมิ</option><option value="Prod.อยุธยา">Prod.อยุธยา</option><option value="Prod.อ่างทอง">Prod.อ่างทอง</option><option value="Prod.อุดรธานี">Prod.อุดรธานี</option><option value="Prod.อุบลราชธานี">Prod.อุบลราชธานี</option></select>
+  </div>
+  <div class="flex flex-col gap-1">
+    <span class="filter-label text-[#4B5563]">โรงงาน</span>
+    <select id="f-plant" class="f-sel w-full"><option value="">ทุก โรงงาน</option><option value="กบินทร์บุรี">กบินทร์บุรี</option><option value="กบินทร์บุรี 2">กบินทร์บุรี 2</option><option value="กระทุ่มแบน">กระทุ่มแบน</option><option value="กระบี่">กระบี่</option><option value="กระบี่น้อย">กระบี่น้อย</option><option value="กระสัง">กระสัง</option><option value="กะทู้">กะทู้</option><option value="กัลปพฤกษ์">กัลปพฤกษ์</option><option value="กาหลง">กาหลง</option><option value="กำแพงเพชร">กำแพงเพชร</option><option value="กำแพงแสน 2">กำแพงแสน 2</option><option value="กิ่งแก้ว">กิ่งแก้ว</option><option value="กุฉินารายณ์ 2">กุฉินารายณ์ 2</option><option value="กุมภวาปี">กุมภวาปี</option><option value="เกตเวย์ 1">เกตเวย์ 1</option><option value="เกตเวย์ 4">เกตเวย์ 4</option><option value="แก่งคอย">แก่งคอย</option><option value="แกลง">แกลง</option><option value="โกสุมพิสัย">โกสุมพิสัย</option><option value="ขอนแก่น">ขอนแก่น</option><option value="ขอนแก่น-บ้านสำราญ">ขอนแก่น-บ้านสำราญ</option><option value="ขอนแก่น-พรหมนิมิต">ขอนแก่น-พรหมนิมิต</option><option value="ขอนแก่น-มะลิวัลย์">ขอนแก่น-มะลิวัลย์</option><option value="เขาย้อย">เขาย้อย</option><option value="เขาวง 4">เขาวง 4</option><option value="เขาวังราชบุรี">เขาวังราชบุรี</option><option value="เขาใหญ่">เขาใหญ่</option><option value="เขาใหญ่-หนองน้ำแดง">เขาใหญ่-หนองน้ำแดง</option><option value="ครบุรี">ครบุรี</option><option value="คลอง 1">คลอง 1</option><option value="คลอง 7">คลอง 7</option><option value="คลอง 9">คลอง 9</option><option value="คลองแงะ 2">คลองแงะ 2</option><option value="คลองตัน 2">คลองตัน 2</option><option value="คลองตัน 3">คลองตัน 3</option><option value="คลองหลวง">คลองหลวง</option><option value="คลังสมุทรสาคร">คลังสมุทรสาคร</option><option value="ควนขนุน">ควนขนุน</option><option value="คาราบาว">คาราบาว</option><option value="แคราย 2">แคราย 2</option><option value="โคกกลอย">โคกกลอย</option><option value="โคกขาม">โคกขาม</option><option value="โคกขาม 2">โคกขาม 2</option><option value="โคราช">โคราช</option><option value="โคราช-บ้านโพธิ์">โคราช-บ้านโพธิ์</option><option value="โคราช-เลี่ยงเมือง">โคราช-เลี่ยงเมือง</option><option value="โคราช-หัวทะเล 2">โคราช-หัวทะเล 2</option><option value="จอมเทียน 1">จอมเทียน 1</option><option value="จอมเทียน 2">จอมเทียน 2</option><option value="จันทบุรี">จันทบุรี</option><option value="ฉลอง">ฉลอง</option><option value="ฉลองกรุง">ฉลองกรุง</option><option value="ฉะเชิงเทรา 2">ฉะเชิงเทรา 2</option><option value="เฉลิมพระเกียรติ">เฉลิมพระเกียรติ</option><option value="ชลบุรีคีรีนคร">ชลบุรีคีรีนคร</option><option value="ชะอำ 3">ชะอำ 3</option><option value="ชัยนาท">ชัยนาท</option><option value="ชัยพฤกษ์">ชัยพฤกษ์</option><option value="ชัยภูมิ 2">ชัยภูมิ 2</option><option value="ชุมพร">ชุมพร</option><option value="เชิงทะเล">เชิงทะเล</option><option value="เชิงทะเล 2">เชิงทะเล 2</option><option value="เชิงทะเล 3">เชิงทะเล 3</option><option value="เชียงรากใหญ่">เชียงรากใหญ่</option><option value="เชียงราย">เชียงราย</option><option value="เชียงราย-ทางหลวง 118(ตอน 1)">เชียงราย-ทางหลวง 118(ตอน 1)</option><option value="เชียงราย-นางแล 2">เชียงราย-นางแล 2</option><option value="เชียงราย-ริมกก">เชียงราย-ริมกก</option><option value="เชียงราย-เวียงชัย">เชียงราย-เวียงชัย</option><option value="เชียงใหม่ 2">เชียงใหม่ 2</option><option value="เชียงใหม่-ดอยสะเก็ด">เชียงใหม่-ดอยสะเก็ด</option><option value="เชียงใหม่-ดอยหล่อ">เชียงใหม่-ดอยหล่อ</option><option value="เชียงใหม่-แม่โจ้">เชียงใหม่-แม่โจ้</option><option value="เชียงใหม่-แม่โจ้ 2">เชียงใหม่-แม่โจ้ 2</option><option value="เชียงใหม่-สันกำแพง">เชียงใหม่-สันกำแพง</option><option value="เชียงใหม่-สันทราย">เชียงใหม่-สันทราย</option><option value="เชียงใหม่-สันปูเลย">เชียงใหม่-สันปูเลย</option><option value="เชียงใหม่-สันผีเสื้อ">เชียงใหม่-สันผีเสื้อ</option><option value="เชียงใหม่-หางดง">เชียงใหม่-หางดง</option><option value="โชคชัย 3">โชคชัย 3</option><option value="ไชโย">ไชโย</option><option value="ซิโนมา Type X">ซิโนมา Type X</option><option value="ดอนตูม">ดอนตูม</option><option value="ดอนเมือง">ดอนเมือง</option><option value="ด่านเกวียน">ด่านเกวียน</option><option value="ดาวเรือง X">ดาวเรือง X</option><option value="เดชอุดม 2">เดชอุดม 2</option><option value="ตรัง">ตรัง</option><option value="ตลิ่งชัน">ตลิ่งชัน</option><option value="ตลิ่งชัน 3">ตลิ่งชัน 3</option><option value="ตาก">ตาก</option><option value="ทับช้าง">ทับช้าง</option><option value="ท่ากูบ">ท่ากูบ</option><option value="ท่าพระ">ท่าพระ</option><option value="ท่าศาลา 2">ท่าศาลา 2</option><option value="ทุ่งสง">ทุ่งสง</option><option value="ทุ่งสง 4">ทุ่งสง 4</option><option value="ไทรน้อย">ไทรน้อย</option><option value="นครปฐม 2">นครปฐม 2</option><option value="นครพนม 4">นครพนม 4</option><option value="นครศรีธรรมราช 2">นครศรีธรรมราช 2</option><option value="นครศรีฯ-พัทธนันท์">นครศรีฯ-พัทธนันท์</option><option value="นครสวรรค์">นครสวรรค์</option><option value="นครสวรรค์-ช่องแค 2">นครสวรรค์-ช่องแค 2</option><option value="นครสวรรค์-ชุมแสง 2">นครสวรรค์-ชุมแสง 2</option><option value="นครสวรรค์-ทางหลวง 117 (ตอน 1)">นครสวรรค์-ทางหลวง 117 (ตอน 1)</option><option value="นครสวรรค์-ทางหลวง 117 (ตอน 2)">นครสวรรค์-ทางหลวง 117 (ตอน 2)</option><option value="นครสวรรค์-บึงบอระเพ็ด">นครสวรรค์-บึงบอระเพ็ด</option><option value="นครสวรรค์-สามแยกเลี่ยงเมือง">นครสวรรค์-สามแยกเลี่ยงเมือง</option><option value="นครสวรรค์-หนองกรด">นครสวรรค์-หนองกรด</option><option value="นบพิตำ-ซี.ซี.จักรกล">นบพิตำ-ซี.ซี.จักรกล</option><option value="นวนคร 4">นวนคร 4</option><option value="นวมินทร์ 2">นวมินทร์ 2</option><option value="นางรอง 2">นางรอง 2</option><option value="นาดี 1">นาดี 1</option><option value="น่าน 3">น่าน 3</option><option value="น้ำพอง-ฟินิคซ">น้ำพอง-ฟินิคซ</option><option value="นิคมเครือซิเมนต์ไทย 2">นิคมเครือซิเมนต์ไทย 2</option><option value="นิคมเครือฯ บปซ.3">นิคมเครือฯ บปซ.3</option><option value="นิคมปิ่นทอง">นิคมปิ่นทอง</option><option value="นิคมเหมราช">นิคมเหมราช</option><option value="นิคมเหมราช-บ่อวิน">นิคมเหมราช-บ่อวิน</option><option value="นิคมอมตะซิตี้">นิคมอมตะซิตี้</option><option value="โนนสมบูรณ์ 2">โนนสมบูรณ์ 2</option><option value="บรบือ">บรบือ</option><option value="บ่อนไก่">บ่อนไก่</option><option value="บ่อนไก่ 3">บ่อนไก่ 3</option><option value="บ่อวิน Mobile">บ่อวิน Mobile</option><option value="บางขุนเทียน 2">บางขุนเทียน 2</option><option value="บางแค">บางแค</option><option value="บางโคล่">บางโคล่</option><option value="บางจาก">บางจาก</option><option value="บางจาก 2">บางจาก 2</option><option value="บางโจ">บางโจ</option><option value="บางซ่อน">บางซ่อน</option><option value="บางซ่อน 3">บางซ่อน 3</option><option value="บางซ่อน 4">บางซ่อน 4</option><option value="บางซ่อน 5">บางซ่อน 5</option><option value="บางนา กม.23">บางนา กม.23</option><option value="บางนา กม.36/2">บางนา กม.36/2</option><option value="บางนา กม.36/4">บางนา กม.36/4</option><option value="บางนา กม.4">บางนา กม.4</option><option value="บางนา กม.4/2">บางนา กม.4/2</option><option value="บางนา กม.8-ราม2">บางนา กม.8-ราม2</option><option value="บางบ่อ">บางบ่อ</option><option value="บางบัวทอง">บางบัวทอง</option><option value="บางปลา 3">บางปลา 3</option><option value="บางปลากด 3">บางปลากด 3</option><option value="บางปะอิน">บางปะอิน</option><option value="บางปะอิน 2">บางปะอิน 2</option><option value="บางปู">บางปู</option><option value="บางพลี 2">บางพลี 2</option><option value="บางมด">บางมด</option><option value="บางวัว">บางวัว</option><option value="บางศรีเมือง">บางศรีเมือง</option><option value="บางแสน 1(FC Type X)">บางแสน 1(FC Type X)</option><option value="บางหลวง">บางหลวง</option><option value="บ้านฉาง">บ้านฉาง</option><option value="บ้านโป่ง">บ้านโป่ง</option><option value="บ้านไผ่ 2">บ้านไผ่ 2</option><option value="บ้านแพ้ว 2">บ้านแพ้ว 2</option><option value="บ้านโพธิ์">บ้านโพธิ์</option><option value="บายพาสวังมะนาว">บายพาสวังมะนาว</option><option value="บึงกาฬ">บึงกาฬ</option><option value="บุรีรัมย์">บุรีรัมย์</option><option value="บุรีรัมย์ 2">บุรีรัมย์ 2</option><option value="บูรพา ท่าหลวง (FC Type X)">บูรพา ท่าหลวง (FC Type X)</option><option value="ปทุมธานี 2">ปทุมธานี 2</option><option value="ประโคนชัย 2">ประโคนชัย 2</option><option value="ประจันตคาม">ประจันตคาม</option><option value="ปราจีนบุรี 2">ปราจีนบุรี 2</option><option value="ปราจีนบุรี-รอบเมือง">ปราจีนบุรี-รอบเมือง</option><option value="ปราณบุรี">ปราณบุรี</option><option value="ปักธงชัย 2">ปักธงชัย 2</option><option value="ปากเกร็ด">ปากเกร็ด</option><option value="ปากช่อง 1-รถไฟความเร็วสูง">ปากช่อง 1-รถไฟความเร็วสูง</option><option value="ปากช่อง 2-รถไฟความเร็วสูง">ปากช่อง 2-รถไฟความเร็วสูง</option><option value="ปากท่อ">ปากท่อ</option><option value="ปากน้ำ">ปากน้ำ</option><option value="ป่าโมก">ป่าโมก</option><option value="ปุณณกัณฑ์">ปุณณกัณฑ์</option><option value="เปรง">เปรง</option><option value="แปลงยาว Type X">แปลงยาว Type X</option><option value="พยุหะคีรี">พยุหะคีรี</option><option value="พรหมณี">พรหมณี</option><option value="พระนครใต้ 3">พระนครใต้ 3</option><option value="พระประแดง">พระประแดง</option><option value="พระประโทน">พระประโทน</option><option value="พระราม 4/2">พระราม 4/2</option><option value="พระราม 4/3">พระราม 4/3</option><option value="พระราม 4/4">พระราม 4/4</option><option value="พระราม 4/5">พระราม 4/5</option><option value="พระราม 5">พระราม 5</option><option value="พระราม 9/2">พระราม 9/2</option><option value="พระราม 9/5">พระราม 9/5</option><option value="พะเยา">พะเยา</option><option value="พะเยา 2">พะเยา 2</option><option value="พัทยา">พัทยา</option><option value="พัทลุง">พัทลุง</option><option value="พานทอง 1">พานทอง 1</option><option value="พานทอง 4">พานทอง 4</option><option value="พิจิตร">พิจิตร</option><option value="พิษณุโลก">พิษณุโลก</option><option value="พิษณุโลก-ม.นเรศวร">พิษณุโลก-ม.นเรศวร</option><option value="พิษณุโลก-วังทอง">พิษณุโลก-วังทอง</option><option value="พิษณุโลก-แสงดาว">พิษณุโลก-แสงดาว</option><option value="พีระมิด-นครศรีธรรมราช">พีระมิด-นครศรีธรรมราช</option><option value="พีระมิด-ปากพนัง">พีระมิด-ปากพนัง</option><option value="พุทธมณฑลสาย 7">พุทธมณฑลสาย 7</option><option value="พุนพิน">พุนพิน</option><option value="เพชรบุรี">เพชรบุรี</option><option value="เพชรมาตุคลา">เพชรมาตุคลา</option><option value="แพรกษา">แพรกษา</option><option value="แพรกษา 2">แพรกษา 2</option><option value="แพร่-เด่นชัย">แพร่-เด่นชัย</option><option value="แพร่-ร้องกวาง(FC Co-Area Type X)">แพร่-ร้องกวาง(FC Co-Area Type X)</option><option value="โพธาราม">โพธาราม</option><option value="ภาชี - ORU">ภาชี - ORU</option><option value="ภูเก็ต">ภูเก็ต</option><option value="ภูเก็ต 2">ภูเก็ต 2</option><option value="มโนรมย์ 2">มโนรมย์ 2</option><option value="มหาสวัสดิ์ 2">มหาสวัสดิ์ 2</option><option value="มหาสารคาม">มหาสารคาม</option><option value="มหาสารคาม 2">มหาสารคาม 2</option><option value="มหาสารคาม 3">มหาสารคาม 3</option><option value="มาบตาพุด 3">มาบตาพุด 3</option><option value="มาบตาพุด 4">มาบตาพุด 4</option><option value="มาบตาพุด 6">มาบตาพุด 6</option><option value="มีนบุรี">มีนบุรี</option><option value="มุกดาหาร 2">มุกดาหาร 2</option><option value="มุกดาหาร 3">มุกดาหาร 3</option><option value="เมืองเลย">เมืองเลย</option><option value="แม่ขรี-พัทลุง">แม่ขรี-พัทลุง</option><option value="แม่น้ำคู้">แม่น้ำคู้</option><option value="แม่ริม-แม่แตง">แม่ริม-แม่แตง</option><option value="ยะลา-พันธ์วิมล">ยะลา-พันธ์วิมล</option><option value="รถไฟความเร็วสูงโคราช-บ้านใหม่ 1">รถไฟความเร็วสูงโคราช-บ้านใหม่ 1</option><option value="รถไฟความเร็วสูงโคราช-บ้านใหม่ 2">รถไฟความเร็วสูงโคราช-บ้านใหม่ 2</option><option value="ร่มเกล้า">ร่มเกล้า</option><option value="ร้อยเอ็ด">ร้อยเอ็ด</option><option value="ระยอง">ระยอง</option><option value="รังสิต">รังสิต</option><option value="รัชวิภา">รัชวิภา</option><option value="รัชวิภา 2">รัชวิภา 2</option><option value="รัตนาธิเบศร์">รัตนาธิเบศร์</option><option value="รัตภูมิ 2">รัตภูมิ 2</option><option value="รามอินทรา 2">รามอินทรา 2</option><option value="ราษฎร์บูรณะ 2">ราษฎร์บูรณะ 2</option><option value="ราษฎร์บูรณะ 4">ราษฎร์บูรณะ 4</option><option value="โรงงานบางเลน (บางภาษี)">โรงงานบางเลน (บางภาษี)</option><option value="โรจนะ">โรจนะ</option><option value="โรจนะ 2">โรจนะ 2</option><option value="โรจนะ-อุทัย">โรจนะ-อุทัย</option><option value="ลพบุรี">ลพบุรี</option><option value="ลาดบัวหลวง 2">ลาดบัวหลวง 2</option><option value="ลาดปลาเค้า">ลาดปลาเค้า</option><option value="ลาดหลุมแก้ว">ลาดหลุมแก้ว</option><option value="ลำปาง">ลำปาง</option><option value="ลำปาง-เกาะคา(FC Co-Area Type X)">ลำปาง-เกาะคา(FC Co-Area Type X)</option><option value="ลำปาง-แจ้ห่ม">ลำปาง-แจ้ห่ม</option><option value="ลำปาง-แม่ทะ(ผาลาด)(FC Co-Area Type X)">ลำปาง-แม่ทะ(ผาลาด)(FC Co-Area Type X)</option><option value="ลำปาง-ห้างฉัตร(FC Co-Area Type X)">ลำปาง-ห้างฉัตร(FC Co-Area Type X)</option><option value="ลำพูน">ลำพูน</option><option value="ลำพูน-นิคมสหพัฒน์">ลำพูน-นิคมสหพัฒน์</option><option value="ลำพูน-บ้านธิ">ลำพูน-บ้านธิ</option><option value="ลำพูน-ป่าซาง">ลำพูน-ป่าซาง</option><option value="วังตะกู">วังตะกู</option><option value="วังน้อย">วังน้อย</option><option value="วังน้ำเขียว-อุดมทรัพย์">วังน้ำเขียว-อุดมทรัพย์</option><option value="วัดโบสถ์">วัดโบสถ์</option><option value="วี.เอส.คอนกรีต2 (Type X)">วี.เอส.คอนกรีต2 (Type X)</option><option value="วี.เอส.คอนกรีต(Type X)">วี.เอส.คอนกรีต(Type X)</option><option value="ศรีตรัง 2">ศรีตรัง 2</option><option value="ศรีมหาโพธิ">ศรีมหาโพธิ</option><option value="ศรีมหาโพธิ 3">ศรีมหาโพธิ 3</option><option value="ศรีราชา 2">ศรีราชา 2</option><option value="ศรีราชา M1">ศรีราชา M1</option><option value="ศรีวิชัย">ศรีวิชัย</option><option value="ศรีสัชนาลัย-ดงคู่">ศรีสัชนาลัย-ดงคู่</option><option value="ศรีสุราษฎร์">ศรีสุราษฎร์</option><option value="ศาลายา 2">ศาลายา 2</option><option value="ศาลาลำดวน">ศาลาลำดวน</option><option value="สกลนคร">สกลนคร</option><option value="สงขลา">สงขลา</option><option value="สงขลา-ขุนทอง">สงขลา-ขุนทอง</option><option value="สงขลา-นาทวี">สงขลา-นาทวี</option><option value="สตึก">สตึก</option><option value="สมุทรสงคราม">สมุทรสงคราม</option><option value="สมุทรสาคร">สมุทรสาคร</option><option value="สมุย">สมุย</option><option value="สระแก้ว">สระแก้ว</option><option value="สระบุรี HSR">สระบุรี HSR</option><option value="สวรรคโลก-บ่อแปดร้อย">สวรรคโลก-บ่อแปดร้อย</option><option value="สว่างวีระวงศ์">สว่างวีระวงศ์</option><option value="สหรัตนคร 2">สหรัตนคร 2</option><option value="สหรัตนนคร">สหรัตนนคร</option><option value="สะแกงาม 2">สะแกงาม 2</option><option value="สาคู">สาคู</option><option value="สามโคก">สามโคก</option><option value="สายไหม">สายไหม</option><option value="สายไหม 2">สายไหม 2</option><option value="สิงห์บุรี">สิงห์บุรี</option><option value="สีคิ้ว 2">สีคิ้ว 2</option><option value="สุขสวัสดิ์">สุขสวัสดิ์</option><option value="สุโขทัย 3">สุโขทัย 3</option><option value="สุโขทัย-ศรีสำโรง">สุโขทัย-ศรีสำโรง</option><option value="สุพรรณบุรี 2">สุพรรณบุรี 2</option><option value="สุราษฎร์ธานี">สุราษฎร์ธานี</option><option value="สุราษฎร์-บางใหญ่">สุราษฎร์-บางใหญ่</option><option value="สุราษฎร์-พระแสง">สุราษฎร์-พระแสง</option><option value="สูงเนิน 3">สูงเนิน 3</option><option value="เสนา">เสนา</option><option value="หนองกี่">หนองกี่</option><option value="หนองแค 2">หนองแค 2</option><option value="หนองแค-ระพีพัฒน์">หนองแค-ระพีพัฒน์</option><option value="หนองจอก">หนองจอก</option><option value="หลักสี่">หลักสี่</option><option value="หลังสวน">หลังสวน</option><option value="หัวหิน 2">หัวหิน 2</option><option value="หาดใหญ่ 2">หาดใหญ่ 2</option><option value="หาดใหญ่ 4">หาดใหญ่ 4</option><option value="แหลมฉบัง 1">แหลมฉบัง 1</option><option value="แหลมฉบัง-ทุ่งกราด 1">แหลมฉบัง-ทุ่งกราด 1</option><option value="แหลมฉบัง-ทุ่งกราด 2">แหลมฉบัง-ทุ่งกราด 2</option><option value="แหลมพันวา">แหลมพันวา</option><option value="แหลมแม่พิมพ์">แหลมแม่พิมพ์</option><option value="องครักษ์ 2">องครักษ์ 2</option><option value="อมตะซิตี้ 3">อมตะซิตี้ 3</option><option value="อมตะนคร">อมตะนคร</option><option value="อรัญประเทศ">อรัญประเทศ</option><option value="อ้อมน้อย">อ้อมน้อย</option><option value="อ่างทอง">อ่างทอง</option><option value="อ่าวลึก">อ่าวลึก</option><option value="อุดร-โพศรี">อุดร-โพศรี</option><option value="อุตรดิตถ์">อุตรดิตถ์</option><option value="อุตรดิตถ์ 2">อุตรดิตถ์ 2</option><option value="อุทัยธานี">อุทัยธานี</option><option value="อุบล-ไร่น้อย">อุบล-ไร่น้อย</option><option value="อุบล-วาริน">อุบล-วาริน</option><option value="อุบล-หนองขอน">อุบล-หนองขอน</option><option value="เอกชัย">เอกชัย</option><option value="FC กาญจนดิษฐ์ (Type X)">FC กาญจนดิษฐ์ (Type X)</option><option value="FC ขอนแก่น1 (Type X2)">FC ขอนแก่น1 (Type X2)</option><option value="FC ขอนแก่น2 (Type X2)">FC ขอนแก่น2 (Type X2)</option><option value="FC เขื่อนอุบลรัตน์ (Type X2)">FC เขื่อนอุบลรัตน์ (Type X2)</option><option value="FC คลองด่าน">FC คลองด่าน</option><option value="FC ท่าพระ (Type X2)">FC ท่าพระ (Type X2)</option><option value="FC นครพนม3 (Type N)">FC นครพนม3 (Type N)</option><option value="FC นพวงศ์">FC นพวงศ์</option><option value="FC น้ำพอง (Type X2)">FC น้ำพอง (Type X2)</option><option value="FC โนนศิลา (Type N)">FC โนนศิลา (Type N)</option><option value="FC โนนสะอาด (Type X2)">FC โนนสะอาด (Type X2)</option><option value="FC ปากน้ำชุมพร (Type X )">FC ปากน้ำชุมพร (Type X )</option><option value="FC ผาหลวงคอนกรีต">FC ผาหลวงคอนกรีต</option><option value="FC ผาหลวงคอนกรีต 2">FC ผาหลวงคอนกรีต 2</option><option value="FC พล (Type X2)">FC พล (Type X2)</option><option value="FC เมืองเลย2 (Type N)">FC เมืองเลย2 (Type N)</option><option value="FC ร้อยเอ็ด3 Type N">FC ร้อยเอ็ด3 Type N</option><option value="FC วังสะพุง (Type X2)">FC วังสะพุง (Type X2)</option><option value="FC หนองขรี">FC หนองขรี</option><option value="FC หนองเรือ (Type X2)">FC หนองเรือ (Type X2)</option><option value="FC หลวงแพ่ง">FC หลวงแพ่ง</option><option value="FC อุดรธานี (Type N)">FC อุดรธานี (Type N)</option><option value="FC อุดร - นาข่า  (Type N)">FC อุดร - นาข่า  (Type N)</option><option value="FC อุดร - นิคมสงเคราะห์  (Type N)">FC อุดร - นิคมสงเคราะห์  (Type N)</option><option value="FC อุดร-มิตรภาพ คูย่งฮวด Type N">FC อุดร-มิตรภาพ คูย่งฮวด Type N</option><option value="FC อุดร-สามพร้าว (Type N)">FC อุดร-สามพร้าว (Type N)</option><option value="High Speed 4-6 Qmix-X">High Speed 4-6 Qmix-X</option><option value="QMix-แม่สอด(TG)">QMix-แม่สอด(TG)</option><option value="RMC, Post Tension and Precast สารภี">RMC, Post Tension and Precast สารภี</option><option value="(TG) ตรังภูทอง">(TG) ตรังภูทอง</option></select>
+  </div>
+  <div class="flex flex-col gap-1">
+    <span class="filter-label text-[#4B5563]">ลูกค้า</span>
+    <select id="f-cust" class="f-sel w-full"><option value="">ทุก ลูกค้า</option><option value="กิจการร่วมค้า ซีเคเอสที-ดีซี 2">กิจการร่วมค้า ซีเคเอสที-ดีซี 2</option><option value="กิจการร่วมค้า ซีเคเอสที-พีแอล">กิจการร่วมค้า ซีเคเอสที-พีแอล</option><option value="กิจการร่วมค้า ซีเคเอสที-โออาร์">กิจการร่วมค้า ซีเคเอสที-โออาร์</option><option value="กิจการร่วมค้า เนาวรัตน์-แซมคอน">กิจการร่วมค้า เนาวรัตน์-แซมคอน</option><option value="กิจการร่วมค้า เอสแอนด์เอส">กิจการร่วมค้า เอสแอนด์เอส</option><option value="คุณกัลยา ติณณาวงศ์">คุณกัลยา&nbsp;ติณณาวงศ์</option><option value="คุณเจมส์ศักดิ์ หลังสันต์">คุณเจมส์ศักดิ์ หลังสันต์</option><option value="คุณชัยยุทธ จินาจิ้น">คุณชัยยุทธ จินาจิ้น</option><option value="คุณไชยัน พวงษี">คุณไชยัน พวงษี</option><option value="คุณไพโรจน์ ทัพพะรังสี">คุณไพโรจน์ ทัพพะรังสี</option><option value="คุณเมธี วงษ์ชีรี (เสี่ยแป๊ก)">คุณเมธี วงษ์ชีรี (เสี่ยแป๊ก)</option><option value="คุณวิชัย โพธิ์รักษ์">คุณวิชัย โพธิ์รักษ์</option><option value="คุณสันติ กนิษฐา">คุณสันติ กนิษฐา</option><option value="คุณสายันต์  ถิ่นสกุล">คุณสายันต์&nbsp;&nbsp;ถิ่นสกุล</option><option value="คุณสุพร ดวงแก้ว">คุณสุพร ดวงแก้ว</option><option value="คุณอภิชาติ ธัญญบุญ">คุณอภิชาติ ธัญญบุญ</option><option value="งานชดเชย/บริจาค (กท)">งานชดเชย/บริจาค (กท)</option><option value="งานชดเชย/บริจาค (ตอ)">งานชดเชย/บริจาค (ตอ)</option><option value="งานชดเชย/บริจาค (ภต)">งานชดเชย/บริจาค (ภต)</option><option value="งานชดเชย/บริจาค (ภน)">งานชดเชย/บริจาค (ภน)</option><option value="งานชดเชย/บริจาค (อส)">งานชดเชย/บริจาค (อส)</option><option value="บ.กนกนภาคอนกรีต จก.">บ.กนกนภาคอนกรีต จก.</option><option value="บ.กบินทร์บุรีธุรกิจ จก.">บ.กบินทร์บุรีธุรกิจ จก.</option><option value="บ.ก.ภัทร จำกัด">บ.ก.ภัทร จำกัด</option><option value="บ.กรณิศ ก่อสร้าง จก.">บ.กรณิศ ก่อสร้าง จก.</option><option value="บ.กรุงเทพคอนกรีต (1989) จก.">บ.กรุงเทพคอนกรีต (1989) จก.</option><option value="บ.กรุงศรีพาณิชย์ จก.">บ.กรุงศรีพาณิชย์ จก.</option><option value="บ.กฤช จก.">บ.กฤช จก.</option><option value="บ.กวางเต็กล้ง จก.">บ.กวางเต็กล้ง จก.</option><option value="บ.กิจการร่วมค้างามวงศ์วาน จก.">บ.กิจการร่วมค้างามวงศ์วาน จก.</option><option value="บ.กิจเจริญชัย ธุรกิจคอนกรีต จก.">บ.กิจเจริญชัย ธุรกิจคอนกรีต จก.</option><option value="บ.กิจภัณฑ์ จก.">บ.กิจภัณฑ์ จก.</option><option value="บ.กิจศิริซีเมนต์ จก.">บ.กิจศิริซีเมนต์ จก.</option><option value="บ.กิตติพงษ์โฮมมาร์ท จก.">บ.กิตติพงษ์โฮมมาร์ท จก.</option><option value="บ.กิติไพศาลค้าวัสดุก่อสร้าง 2535 จก.">บ.กิติไพศาลค้าวัสดุก่อสร้าง 2535 จก.</option><option value="บ.เกษตรผลวัสดุก่อสร้าง จก.">บ.เกษตรผลวัสดุก่อสร้าง จก.</option><option value="บ.คอนกรีตไลน์ จก.">บ.คอนกรีตไลน์ จก.</option><option value="บ.คอนแทรคเตอร์ ช๊อป จก.">บ.คอนแทรคเตอร์ ช๊อป จก.</option><option value="บ.คอนสแมท จก.">บ.คอนสแมท จก.</option><option value="บ.คิดและสร้าง จก.">บ.คิดและสร้าง จก.</option><option value="บ.คิว-วันคอร์ปอเรชั่น จก.">บ.คิว-วันคอร์ปอเรชั่น จก.</option><option value="บ.คูเซี้ยงล้ง บ้านฉาง จก.">บ.คูเซี้ยงล้ง บ้านฉาง จก.</option><option value="บ.คูย่งฮวด (1995) จก.">บ.คูย่งฮวด (1995) จก.</option><option value="บ.คูย่งฮวด อุดรธานี จก.">บ.คูย่งฮวด อุดรธานี จก.</option><option value="บ.เคทีแอล กรุ๊ป 2019 จก.">บ.เคทีแอล กรุ๊ป 2019 จก.</option><option value="บ.เคนเบอร์จีโอเทคนิค (ไทยแลนด์) จก. สนญ.">บ.เคนเบอร์จีโอเทคนิค (ไทยแลนด์) จก. สนญ.</option><option value="บ.เคแพค อินเตอร์เทรด จก.">บ.เคแพค อินเตอร์เทรด จก.</option><option value="บ.เครื่องก่อสร้าง (1983) จก.">บ.เครื่องก่อสร้าง (1983) จก.</option><option value="บ.เคหะเซนเตอร์ จก. สนญ.">บ.เคหะเซนเตอร์ จก. สนญ.</option><option value="บ.งามวงศ์วานการช่าง จก.">บ.งามวงศ์วานการช่าง จก.</option><option value="บ.เงินทองมาวัสดุ จก.">บ.เงินทองมาวัสดุ จก.</option><option value="บจก. 39 แมททีเรียล">บจก. 39 แมททีเรียล</option><option value="บจก.ชุมพรไถ่เชียงคอนกรีต">บจก.ชุมพรไถ่เชียงคอนกรีต</option><option value="บจก.โชคทวี ซีเมนต์">บจก.โชคทวี ซีเมนต์</option><option value="บจก.ทีสัน คอนสตรัคชั่น">บจก.ทีสัน คอนสตรัคชั่น</option><option value="บจก.หาญเจริญเอนเตอร์ไพรส์เชียงราย">บจก.หาญเจริญเอนเตอร์ไพรส์เชียงราย</option><option value="บจ.กิจเจริญอาณาจักรภัณฑ์">บจ.กิจเจริญอาณาจักรภัณฑ์</option><option value="บจ.คิวมิกซ์ซัพพลาย">บจ.คิวมิกซ์ซัพพลาย</option><option value="บจ.ไชยฮวด โฮม เซ็นเตอร์">บจ.ไชยฮวด โฮม เซ็นเตอร์</option><option value="บจ.ซีแพคคอนสตรัคชั่นโซลูชั่น">บจ.ซีแพคคอนสตรัคชั่นโซลูชั่น</option><option value="บจ.ซีแพค เอสบีแอนด์เอ็ม ไลฟ์ไทม์ โซลูชั่น">บจ.ซีแพค เอสบีแอนด์เอ็ม ไลฟ์ไทม์ โซลูชั่น</option><option value="บจ.ซีวิล คอนสตรัคชั่น เซอร์วิสเซส แอนด์ โปรดักส์">บจ.ซีวิล คอนสตรัคชั่น เซอร์วิสเซส แอนด์ โปรดักส์</option><option value="บจ.ไทยพิพัฒน์ฮาร์ดแวร์">บจ.ไทยพิพัฒน์ฮาร์ดแวร์</option><option value="บจ.บิลดิ้งแมททีเรียลโซลูชันส์">บจ.บิลดิ้งแมททีเรียลโซลูชันส์</option><option value="บจ.บุญทวีวัสดุ">บจ.บุญทวีวัสดุ</option><option value="บจ.บูรพาคอนกรีต แอนด์ คอนสตรัคชั่น">บจ.บูรพาคอนกรีต แอนด์ คอนสตรัคชั่น</option><option value="บจ.ปูนซิเมนต์ไทย (แก่งคอย)">บจ.ปูนซิเมนต์ไทย (แก่งคอย)</option><option value="บจ.ปูนซิเมนต์ไทย (ท่าหลวง)">บจ.ปูนซิเมนต์ไทย (ท่าหลวง)</option><option value="บจ.ปูนซิเมนต์ไทย (ทุ่งสง)">บจ.ปูนซิเมนต์ไทย (ทุ่งสง)</option><option value="บจ.ปูนซิเมนต์ไทย (ลำปาง)">บจ.ปูนซิเมนต์ไทย (ลำปาง)</option><option value="บจ.ผลิตภัณฑ์และวัตถุก่อสร้าง">บจ.ผลิตภัณฑ์และวัตถุก่อสร้าง</option><option value="บจ.แม็กซ์โฮม เอ็กซ์เพิร์ต">บจ.แม็กซ์โฮม เอ็กซ์เพิร์ต</option><option value="บจ.เลิศศิริ สมุทรปราการ">บจ.เลิศศิริ สมุทรปราการ</option><option value="บจ.วีอาร์ คอนสตรัคชั่น แมททีเรียล">บจ.วีอาร์ คอนสตรัคชั่น แมททีเรียล</option><option value="บจ.ศิริมหาชัย โฮมเซ็นเตอร์">บจ.ศิริมหาชัย โฮมเซ็นเตอร์</option><option value="บจ.สยามคราฟท์อุตสาหกรรม">บจ.สยามคราฟท์อุตสาหกรรม</option><option value="บจ.สินค้าซิเมนต์ไทย">บจ.สินค้าซิเมนต์ไทย</option><option value="บจ.สินไทยธนโชติ">บจ.สินไทยธนโชติ</option><option value="บจ.แสงไพบูลย์โฮม รีเทล">บจ.แสงไพบูลย์โฮม รีเทล</option><option value="บ.จอมทองเคหะภัณฑ์ จก.">บ.จอมทองเคหะภัณฑ์ จก.</option><option value="บจ.อาร์ เค วัสดุ">บจ.อาร์ เค วัสดุ</option><option value="บจ.อีโค่ แพลนท์ เซอร์วิสเซส">บจ.อีโค่ แพลนท์ เซอร์วิสเซส</option><option value="บจ.เอฟวัน คอนกรีต">บจ.เอฟวัน คอนกรีต</option><option value="บจ.เอสซีจี แลนด์สเคป">บจ.เอสซีจี แลนด์สเคป</option><option value="บจ.เอส เทค ซีวิล แอนด์ คอนสตรัคชั่น">บจ.เอส เทค ซีวิล แอนด์ คอนสตรัคชั่น</option><option value="บ.จำหน่ายวัตถุก่อสร้าง จก.">บ.จำหน่ายวัตถุก่อสร้าง จก.</option><option value="บ.จิรเคหะภัณฑ์ ซินฮั้ว จก.">บ.จิรเคหะภัณฑ์ ซินฮั้ว จก.</option><option value="บ.จิวมุ้ยเฮียง ย่งฮวดวัสดุก่อสร้าง จก.">บ.จิวมุ้ยเฮียง ย่งฮวดวัสดุก่อสร้าง จก.</option><option value="บ.เจ คอนซัลแตนท์ แอนด์ เมนเนจเมนต์ จก.">บ.เจ คอนซัลแตนท์ แอนด์ เมนเนจเมนต์ จก.</option><option value="บ.เจริญเคหะ โฮมมาร์ท จก.">บ.เจริญเคหะ โฮมมาร์ท จก.</option><option value="บ.เจริญธุรกิจ(1990) จก.">บ.เจริญธุรกิจ(1990) จก.</option><option value="บ.เจริญภัณฑ์พาณิชย์ (1984) จก.">บ.เจริญภัณฑ์พาณิชย์ (1984) จก.</option><option value="บ.เจริญภัณฑ์โฮมแอนด์ลิฟวิ่ง เซ็นเตอร์ จก.">บ.เจริญภัณฑ์โฮมแอนด์ลิฟวิ่ง เซ็นเตอร์ จก.</option><option value="บ.เจริญสหกิจ หัวไทร จก.">บ.เจริญสหกิจ หัวไทร จก.</option><option value="บ.เจอาร์เอ็น (2012) จก.">บ.เจอาร์เอ็น (2012) จก.</option><option value="บ.เจี้ยบเซ้งโฮมแมคโคร จก.">บ.เจี้ยบเซ้งโฮมแมคโคร จก.</option><option value="บ.ฉลองกรุงซิเมนต์ไทยโฮมมาร์ท จก.">บ.ฉลองกรุงซิเมนต์ไทยโฮมมาร์ท จก.</option><option value="บ.ช.การช่าง-โตกิวคอนสตรัคชั่น จก.">บ.ช.การช่าง-โตกิวคอนสตรัคชั่น จก.</option><option value="บ.ชนะวัตร ก่อสร้าง จก.">บ.ชนะวัตร ก่อสร้าง จก.</option><option value="บ.ชลบุรีเกียรติเจริญ จก.">บ.ชลบุรีเกียรติเจริญ จก.</option><option value="บ.ชลบุรีอึ้งย่งล้ง จก.">บ.ชลบุรีอึ้งย่งล้ง จก.</option><option value="บ.ชลรุ่งเรืองนครราชสีมา จก.">บ.ชลรุ่งเรืองนครราชสีมา จก.</option><option value="บ.ชวลิตรวมวัสดุ จก.">บ.ชวลิตรวมวัสดุ จก.</option><option value="บ.ช.วุฒิกรพัทยาค้าวัสดุ จก.">บ.ช.วุฒิกรพัทยาค้าวัสดุ จก.</option><option value="บ.ชัยเจริญแปดริ้วค้าวัสดุ จก.">บ.ชัยเจริญแปดริ้วค้าวัสดุ จก.</option><option value="บ.ชัยเจริญโฮมโซลูชั่น จก.">บ.ชัยเจริญโฮมโซลูชั่น จก.</option><option value="บ.ชัยทวีโชค (บางพลี) จก.">บ.ชัยทวีโชค (บางพลี) จก.</option><option value="บ.ชัยวัฒน์ 1995 จก.">บ.ชัยวัฒน์ 1995 จก.</option><option value="บ.ชัยวัฒน์ค้าซีเมนต์(1995) จก.">บ.ชัยวัฒน์ค้าซีเมนต์(1995) จก.</option><option value="บ.ชัยสมพรค้าวัสดุ(1994) จก.">บ.ชัยสมพรค้าวัสดุ(1994) จก.</option><option value="บ.ชีย้งเฮง จก.">บ.ชีย้งเฮง จก.</option><option value="บ.เชียงรายรักบ้าน จก.">บ.เชียงรายรักบ้าน จก.</option><option value="บ.เชียงใหม่ธาราภัณฑ์ จก.">บ.เชียงใหม่ธาราภัณฑ์ จก.</option><option value="บ.เชียงใหม่มายโฮม จก.">บ.เชียงใหม่มายโฮม จก.</option><option value="บ.เชียงใหม่วีระกิจ (2008) จก.">บ.เชียงใหม่วีระกิจ (2008) จก.</option><option value="บ.เชียงใหม่วีระวิศวการ จก.">บ.เชียงใหม่วีระวิศวการ จก.</option><option value="บ.ซิเมนต์ราชบุรี จก.">บ.ซิเมนต์ราชบุรี จก.</option><option value="บ.ซีโก้ทรานสปอร์ต จก.">บ.ซีโก้ทรานสปอร์ต จก.</option><option value="บ.ซี.ซี.คอนกรีต จก.">บ.ซี.ซี.คอนกรีต จก.</option><option value="บ.ซีเมนต์พลัส จก.">บ.ซีเมนต์พลัส จก.</option><option value="บ.ซี.อี.เอส. จก.">บ.ซี.อี.เอส. จก.</option><option value="บ.ซีเอ็นเอ็น การโยธา จก.">บ.ซีเอ็นเอ็น การโยธา จก.</option><option value="บ.ซี แอนด์ ที เมทอล โปรดักส์ จก.">บ.ซี แอนด์ ที เมทอล โปรดักส์ จก.</option><option value="บ.ซี แอนด์ ที โมดูลาร์ จก.">บ.ซี แอนด์ ที โมดูลาร์ จก.</option><option value="บ.ซี.แอล.คอนกรีต จก.">บ.ซี.แอล.คอนกรีต จก.</option><option value="บ.เซ็นเตอร์รุ่งเรือง จก.">บ.เซ็นเตอร์รุ่งเรือง จก.</option><option value="บ.เซ็นทรัลโฮมเซ็นเตอร์(2000) จก.">บ.เซ็นทรัลโฮมเซ็นเตอร์(2000) จก.</option><option value="บ.แซมคอน จก.">บ.แซมคอน จก.</option><option value="บ.ดวงแสงทอง จก.">บ.ดวงแสงทอง จก.</option><option value="บ.ดี.เค.เจ.คอนสตรัคชั่น จก.">บ.ดี.เค.เจ.คอนสตรัคชั่น จก.</option><option value="บ.ตรีเพชรค้าวัสดุก่อสร้าง จก.">บ.ตรีเพชรค้าวัสดุก่อสร้าง จก.</option><option value="บ.ตั้งหง่วงเซ้ง ไทย โฮมมาร์ท จก.">บ.ตั้งหง่วงเซ้ง ไทย โฮมมาร์ท จก.</option><option value="บ.ตึกน้ำเงิน (1993) จก.">บ.ตึกน้ำเงิน (1993) จก.</option><option value="บ. ตึกน้ำเงินคอนกรีต จก.">บ. ตึกน้ำเงินคอนกรีต จก.</option><option value="บ.เตียฮงฮะ สิริพานิช จก.">บ.เตียฮงฮะ สิริพานิช จก.</option><option value="บ.ไถ่เชียงวัสดุก่อสร้าง จก.">บ.ไถ่เชียงวัสดุก่อสร้าง จก.</option><option value="บ.ทวีสินคอนกรีต จก.">บ.ทวีสินคอนกรีต จก.</option><option value="บ.ทองทวีซีเมนต์ จก.">บ.ทองทวีซีเมนต์ จก.</option><option value="บ.ทองทิตต์เจริญ (1985) จก.">บ.ทองทิตต์เจริญ (1985) จก.</option><option value="บ.ทิพากร จก.">บ.ทิพากร จก.</option><option value="บ.ทูบี บิลท์ จก.">บ.ทูบี บิลท์ จก.</option><option value="บ.เทพารักษ์คอนกรีต จก.">บ.เทพารักษ์คอนกรีต จก.</option><option value="บ.ไทยโคโนอิเกะ คอร์ปอเรชั่น จก.">บ.ไทยโคโนอิเกะ คอร์ปอเรชั่น จก.</option><option value="บ.ไทยพิพัฒน์วัสดุก่อสร้าง จก.">บ.ไทยพิพัฒน์วัสดุก่อสร้าง จก.</option><option value="บ.ไทยพิพัฒน์ฮาร์ดแวร์ จก.">บ.ไทยพิพัฒน์ฮาร์ดแวร์ จก.</option><option value="บ.ไทยวัฒน์วิศวการทาง จก.">บ.ไทยวัฒน์วิศวการทาง จก.</option><option value="บ.ธราธรวัสดุก่อสร้าง จก.">บ.ธราธรวัสดุก่อสร้าง จก.</option><option value="บ.ธวัชวัตถุก่อสร้าง จก.">บ.ธวัชวัตถุก่อสร้าง จก.</option><option value="บ.ธำรงวัสดุภัณฑ์ จก.">บ.ธำรงวัสดุภัณฑ์ จก.</option><option value="บ.ธีรภาดาโฮมมาร์ทแม็กซ์ จก.">บ.ธีรภาดาโฮมมาร์ทแม็กซ์ จก.</option><option value="บ.นนทบุรี เอ็นจิเนีย จก.">บ.นนทบุรี เอ็นจิเนีย จก.</option><option value="บ.นพเก้าโฮมมาร์ท จก.">บ.นพเก้าโฮมมาร์ท จก.</option><option value="บ.นพดลพานิช จก.">บ.นพดลพานิช จก.</option><option value="บ.นพปฎล จก.">บ.นพปฎล จก.</option><option value="บ.นภาภัณฑ์ ซัพพลาย จก.">บ.นภาภัณฑ์ ซัพพลาย จก.</option><option value="บ.นวการค้าวัสดุก่อสร้าง จก.">บ.นวการค้าวัสดุก่อสร้าง จก.</option><option value="บ.นวชัย แมททีเรียล เทรดดิ้ง จก.">บ.นวชัย แมททีเรียล เทรดดิ้ง จก.</option><option value="บ.นันทวัน จก.(สำนักงานใหญ่)">บ.นันทวัน จก.(สำนักงานใหญ่)</option><option value="บ.นางรองเคหะภัณฑ์ค้าวัสดุ จก.">บ.นางรองเคหะภัณฑ์ค้าวัสดุ จก.</option><option value="บ.นางรองเคหะภัณฑ์ จก.">บ.นางรองเคหะภัณฑ์ จก.</option><option value="บ.นางรองเคหะภัณฑ์ โฮมมาร์ท จก.">บ.นางรองเคหะภัณฑ์ โฮมมาร์ท จก.</option><option value="บ.นิวัฒน์วัสดุ จก.">บ.นิวัฒน์วัสดุ จก.</option><option value="บ.เนาวรัตน์พัฒนาการ จก.(มหาชน)">บ.เนาวรัตน์พัฒนาการ จก.(มหาชน)</option><option value="บ.บ้วนล้งค้าวัสดุภัณฑ์ จก.">บ.บ้วนล้งค้าวัสดุภัณฑ์ จก.</option><option value="บ.บางแสนมหานคร ผลิตภัณฑ์คอนกรีต จก.">บ.บางแสนมหานคร ผลิตภัณฑ์คอนกรีต จก.</option><option value="บ.บ้านฉางสามเจริญ จก.">บ.บ้านฉางสามเจริญ จก.</option><option value="บ.บ้านโป่งซีเมนต์ จก.">บ.บ้านโป่งซีเมนต์ จก.</option><option value="บ.บ้านแพนวิสาหกิจ จก.">บ.บ้านแพนวิสาหกิจ จก.</option><option value="บ.บ้านอำเภอเทรดดิ้ง จก.">บ.บ้านอำเภอเทรดดิ้ง จก.</option><option value="บ.บิลดิ้ง สโตร์ จก.">บ.บิลดิ้ง สโตร์ จก.</option><option value="บ.บี.บอย.เบลล์.คอนสตรัคชั่น จก.">บ.บี.บอย.เบลล์.คอนสตรัคชั่น จก.</option><option value="บ.บุญชัยค้าวัตถุก่อสร้าง จก.">บ.บุญชัยค้าวัตถุก่อสร้าง จก.</option><option value="บ.บุญดีวัสดุภัณฑ์ จก.">บ.บุญดีวัสดุภัณฑ์ จก.</option><option value="บ.บุญไทยพาณิชย์ซิเมนต์  จก.">บ.บุญไทยพาณิชย์ซิเมนต์  จก.</option><option value="บ.ปฐมนครพาณิชยการ (1993) จก.">บ.ปฐมนครพาณิชยการ (1993) จก.</option><option value="บ.ประภาวิวัฒน์ค้าวัสดุ จก.">บ.ประภาวิวัฒน์ค้าวัสดุ จก.</option><option value="บ.ประยูรวิศว์ จก.">บ.ประยูรวิศว์ จก.</option><option value="บ.ประสงค์กิจซิเมนต์(1988) จก.">บ.ประสงค์กิจซิเมนต์(1988) จก.</option><option value="บ.ประเสริฐสินคอนสตรัคชั่น จก.">บ.ประเสริฐสินคอนสตรัคชั่น จก.</option><option value="บ.ปรีดา เรียล เอสเตท จก.">บ.ปรีดา เรียล เอสเตท จก.</option><option value="บ.ปอแซ สตีล จก.">บ.ปอแซ สตีล จก.</option><option value="บ.ปัญญาคอนกรีต จก.">บ.ปัญญาคอนกรีต จก.</option><option value="บ.ปัญญาเซ็นเตอร์ จก.">บ.ปัญญาเซ็นเตอร์ จก.</option><option value="บ.ปิติ ซีฟูดส์ จก.">บ.ปิติ ซีฟูดส์ จก.</option><option value="บ.เป็นเอกสิงห์บุรี จก.">บ.เป็นเอกสิงห์บุรี จก.</option><option value="บ.เปรมปรีดิ์ ศูนย์รวมวัสดุ จก.">บ.เปรมปรีดิ์ ศูนย์รวมวัสดุ จก.</option><option value="บ.โปรเกรส แม็ทคอน จก.">บ.โปรเกรส แม็ทคอน จก.</option><option value="บ.ผาทอง 24 จก.">บ.ผาทอง 24 จก.</option><option value="บ.พงษ์ศักดิ์ไทยวัสดุภัณฑ์ (1994) จก.">บ.พงษ์ศักดิ์ไทยวัสดุภัณฑ์ (1994) จก.</option><option value="บ.พงษ์สินค้าวัสดุ จก.">บ.พงษ์สินค้าวัสดุ จก.</option><option value="บ.พยัคฆ์วัสดุ จก.">บ.พยัคฆ์วัสดุ จก.</option><option value="บ.พรวัฒนา พี.นุกูร จก.">บ.พรวัฒนา พี.นุกูร จก.</option><option value="บ.พรสมบูรณ์ค้าวัสดุก่อสร้าง จก.">บ.พรสมบูรณ์ค้าวัสดุก่อสร้าง จก.</option><option value="บ.พ.วิศวภัณฑ์ จก.">บ.พ.วิศวภัณฑ์ จก.</option><option value="บ.พัฒนาดีโฮมมาร์ท จก.">บ.พัฒนาดีโฮมมาร์ท จก.</option><option value="บ.พัทลุงสิทธิชัยวัสดุก่อสร้าง จก.">บ.พัทลุงสิทธิชัยวัสดุก่อสร้าง จก.</option><option value="บ.พีระมิดคอนกรีต จก.">บ.พีระมิดคอนกรีต จก.</option><option value="บ.พีระวัฒน์เทรดดิ้ง จก.">บ.พีระวัฒน์เทรดดิ้ง จก.</option><option value="บ.พี.เอ็น.วัสดุก่อสร้าง จก.">บ.พี.เอ็น.วัสดุก่อสร้าง จก.</option><option value="บ.พีเอสพี ซีเมนต์ไทย จก.">บ.พีเอสพี ซีเมนต์ไทย จก.</option><option value="บ.พีแอลซี คอนกรีต จก.">บ.พีแอลซี คอนกรีต จก.</option><option value="บ.พูนทรัพย์ค้าวัสดุก่อสร้าง จก.">บ.พูนทรัพย์ค้าวัสดุก่อสร้าง จก.</option><option value="บ.พูนศิริวัฒนา จก.">บ.พูนศิริวัฒนา จก.</option><option value="บ.เพื่อนบ้านเพื่อนคุณ 2004 จก.">บ.เพื่อนบ้านเพื่อนคุณ 2004 จก.</option><option value="บ.แพร่ธำรงวิทย์ จก.">บ.แพร่ธำรงวิทย์ จก.</option><option value="บ.แพล้นท์คอนกรีตถาวร จก.">บ.แพล้นท์คอนกรีตถาวร จก.</option><option value="บ.ภูเก็ตวิชิตภัณฑ์ จก.">บ.ภูเก็ตวิชิตภัณฑ์ จก.</option><option value="บมจ.ควอลิตี้คอนสตรัคชั่น โปรดัคส์">บมจ.ควอลิตี้คอนสตรัคชั่น โปรดัคส์</option><option value="บมจ.ช.การช่าง">บมจ.ช.การช่าง</option><option value="บมจ. ซีวิลเอนจีเนียริง">บมจ. ซีวิลเอนจีเนียริง</option><option value="บมจ.ไทยเคนเปเปอร์">บมจ.ไทยเคนเปเปอร์</option><option value="บมจ.ศุภาลัย">บมจ.ศุภาลัย</option><option value="บมจ.อิตาเลียนไทย ดีเวล๊อปเมนต์">บมจ.อิตาเลียนไทย ดีเวล๊อปเมนต์</option><option value="บมจ.เอ็นแอล ดีเวลลอปเมนต์">บมจ.เอ็นแอล ดีเวลลอปเมนต์</option><option value="บมจ.โฮม สุขภัณฑ์">บมจ.โฮม สุขภัณฑ์</option><option value="บ.มิตรอภัย จก.">บ.มิตรอภัย จก.</option><option value="บ.เม็งรายคอนกรีต จก.">บ.เม็งรายคอนกรีต จก.</option><option value="บ.เม้งฮวดนครศรีฯ จก.">บ.เม้งฮวดนครศรีฯ จก.</option><option value="บ.เม็ททัล มาร์ท จก.">บ.เม็ททัล มาร์ท จก.</option><option value="บ.เมธีกุล (แปดริ้ว) จก.">บ.เมธีกุล (แปดริ้ว) จก.</option><option value="บ.เมืองทอง โฮม พลัส จก.">บ.เมืองทอง โฮม พลัส จก.</option><option value="บ.แม็กซ์โฮม แอนด์ เดคคอร์ จก.">บ.แม็กซ์โฮม แอนด์ เดคคอร์ จก.</option><option value="บ.ไม้ไทยลพบุรี จก.">บ.ไม้ไทยลพบุรี จก.</option><option value="บ.ยงยุทธคอนกรีตผสมเสร็จ (2499) จก.">บ.ยงยุทธคอนกรีตผสมเสร็จ (2499) จก.</option><option value="บ.ยิ่งเจริญ โฮมมาร์ท ปากช่อง จก.">บ.ยิ่งเจริญ โฮมมาร์ท ปากช่อง จก.</option><option value="บ.ยูนิค อินโนเวชั่น จก.">บ.ยูนิค อินโนเวชั่น จก.</option><option value="บ.รวมซีเมนต์99 จก.">บ.รวมซีเมนต์99 จก.</option><option value="บ.ร่อนทองชัย โฮมมาร์ท จก.">บ.ร่อนทองชัย โฮมมาร์ท จก.</option><option value="บ.ร้อยเอ็ดรุ่งเรือง จก.">บ.ร้อยเอ็ดรุ่งเรือง จก.</option><option value="บ.ระยองเคหะภัณฑ์ 1989 จก.">บ.ระยองเคหะภัณฑ์ 1989 จก.</option><option value="บ.ระยองภาคินทร์ จก.">บ.ระยองภาคินทร์ จก.</option><option value="บ.รัจนาการ พร็อพเพอร์ตี้ จก.">บ.รัจนาการ พร็อพเพอร์ตี้ จก.</option><option value="บ.รางไผ่ จก.">บ.รางไผ่ จก.</option><option value="บ.ราชพฤกษ์ โฮมเซ็นเตอร์ จก.">บ.ราชพฤกษ์ โฮมเซ็นเตอร์ จก.</option><option value="บริษัท ก.ทวีทรัพย์ค้าวัสดุ จำกัด">บริษัท ก.ทวีทรัพย์ค้าวัสดุ จำกัด</option><option value="บริษัท กระบี่คอนกรีต 1999 จำกัด">บริษัท กระบี่คอนกรีต 1999 จำกัด</option><option value="บริษัท กวงซิน คอนสตรั๊คชั่น จำกัด">บริษัท กวงซิน&nbsp;คอนสตรั๊คชั่น&nbsp;จำกัด</option><option value="บริษัท ฆัสรา การโยธา จำกัด">บริษัท ฆัสรา การโยธา จำกัด</option><option value="บริษัท จื่อเว่ย โอเวอร์ซีส์ เอ็นจิเนียริ่ง (ประเทศไทย) จำกัด">บริษัท จื่อเว่ย โอเวอร์ซีส์ เอ็นจิเนียริ่ง (ประเทศไทย) จำกัด</option><option value="บริษัท เจ.เค.เทค จำกัด">บริษัท เจ.เค.เทค จำกัด</option><option value="บริษัท เจิ้งซิน เทรดดิ้ง จำกัด">บริษัท เจิ้งซิน เทรดดิ้ง จำกัด</option><option value="บริษัท ชุมพรไถ่เชียงคอนกรีต จำกัด">บริษัท ชุมพรไถ่เชียงคอนกรีต จำกัด</option><option value="บริษัท โชคชัยการโยธา จำกัด">บริษัท โชคชัยการโยธา จำกัด</option><option value="บริษัท ไชน่า สเตท คอนสตรัคชั่น เอนยิเนียริ่ง(ประเทศไทย)จำกัด">บริษัท ไชน่า สเตท คอนสตรัคชั่น เอนยิเนียริ่ง(ประเทศไทย)จำกัด</option><option value="บริษัท ซันโวด้า ออโตโมทีฟ เอนเนอร์จี เทคโนโลยี (ประเทศไทย) จำกัด">บริษัท ซันโวด้า ออโตโมทีฟ เอนเนอร์จี เทคโนโลยี (ประเทศไทย) จำกัด</option><option value="บริษัท ซินไท่เย่ว เทคโนโลยี (ประเทศไทย) จำกัด">บริษัท ซินไท่เย่ว เทคโนโลยี (ประเทศไทย) จำกัด</option><option value="บริษัทซิโนมา หานดาน(ไทยแลนด์) จำกัด">บริษัทซิโนมา หานดาน(ไทยแลนด์) จำกัด</option><option value="บริษัท ซีเอ็มซีซี (ไทยแลนด์) จำกัด">บริษัท ซีเอ็มซีซี (ไทยแลนด์) จำกัด</option><option value="บริษัท แซดทีดีดี อินเตอร์เนชั่นแนล จำกัด">บริษัท แซดทีดีดี อินเตอร์เนชั่นแนล จำกัด</option><option value="บริษัท ดี ซูพรีม จำกัด">บริษัท ดี ซูพรีม จำกัด</option><option value="บริษัท เดอะ ซี.อี.ซี. คอนสตรัคชั่น จำกัด">บริษัท เดอะ ซี.อี.ซี. คอนสตรัคชั่น จำกัด</option><option value="บริษัท ที.เอ็ม.ไอ.ดริล จำกัด">บริษัท ที.เอ็ม.ไอ.ดริล จำกัด</option><option value="บริษัท ที.เอ็ม.ไอ.ดริล แอนด์  คอนสตรัคชั่น จำกัด">บริษัท ที.เอ็ม.ไอ.ดริล แอนด์  คอนสตรัคชั่น จำกัด</option><option value="บริษัท ไท่ต๋า คอนสตรัคชั่น จำกัด">บริษัท ไท่ต๋า คอนสตรัคชั่น จำกัด</option><option value="บริษัท นวรัฐ บิวเดอร์ จำกัด">บริษัท นวรัฐ บิวเดอร์ จำกัด</option><option value="บริษัท นอร์ทเทิร์น แมททีเรียล   แอนด์ คอนกรีต จำกัด">บริษัท นอร์ทเทิร์น แมททีเรียล   แอนด์ คอนกรีต จำกัด</option><option value="บริษัทบางแสนมหานคร จำกัด">บริษัทบางแสนมหานคร จำกัด</option><option value="บริษัท บ้านนายช่าง โฮม กรุ๊ป จำกัด (คุณธนกฤต อุ้ยนอง)">บริษัท บ้านนายช่าง&nbsp;โฮม&nbsp;กรุ๊ป&nbsp;จำกัด (คุณธนกฤต อุ้ยนอง)</option><option value="บริษัท บายมิ่ง คอนสตรัคชั่น (ไทยแลนด์) จํากัด">บริษัท บายมิ่ง คอนสตรัคชั่น (ไทยแลนด์) จํากัด</option><option value="บริษัทบูรพาคอนกรีต แอนด์ คอนสตรัคชั่น จำกัด">บริษัทบูรพาคอนกรีต แอนด์ คอนสตรัคชั่น จำกัด</option><option value="บริษัทบูรพาคอนกรีต แอนด์ คอนสตรัคชั่น จำกัด(ผรม.บูราพา ใช้เอง)">บริษัทบูรพาคอนกรีต แอนด์ คอนสตรัคชั่น จำกัด(ผรม.บูราพา ใช้เอง)</option><option value="บริษัท ปันสุข กรุ๊ป ดีเวลลอปเม้นท์ จำกัด (ปูรณ์พิจักษณ์ ติณณาวงศ์ )">บริษัท ปันสุข&nbsp;กรุ๊ป&nbsp;ดีเวลลอปเม้นท์&nbsp;จำกัด (ปูรณ์พิจักษณ์&nbsp;ติณณาวงศ์&nbsp;)</option><option value="บริษัท ไป๋หมิง คอนสตรัคชั่น (ประเทศไทย) จำกัด">บริษัท ไป๋หมิง คอนสตรัคชั่น (ประเทศไทย) จำกัด</option><option value="บริษัท พีระมิด เอ็นจิเนียร์ จำกัด">บริษัท พีระมิด เอ็นจิเนียร์ จำกัด</option><option value="บริษัท ไพรัตน์วัตถุก่อสร้าง จำกัด">บริษัท ไพรัตน์วัตถุก่อสร้าง จำกัด</option><option value="บริษัท ฟ้าทวีพร จำกัด">บริษัท ฟ้าทวีพร จำกัด</option><option value="บริษัท ย่งเส็ง ดีเวลลอปเม้นท์ แอนด์ คอนสตรัคชั่น จำกัด">บริษัท ย่งเส็ง ดีเวลลอปเม้นท์ แอนด์ คอนสตรัคชั่น จำกัด</option><option value="บริษัทรักขิตะ จำกัด">บริษัทรักขิตะ จำกัด</option><option value="บริษัท ว.วีระวัฒน์ จำกัด">บริษัท ว.วีระวัฒน์ จำกัด</option><option value="บริษัท วันโฮม วัสดุก่อสร้าง จำกัด">บริษัท วันโฮม วัสดุก่อสร้าง จำกัด</option><option value="บริษัท ศศิธร รุ่งเรือง คอนกรีต จำกัด">บริษัท ศศิธร รุ่งเรือง คอนกรีต จำกัด</option><option value="บริษัทศิลามาศ เซอร์วิสเซส จำกัด">บริษัทศิลามาศ เซอร์วิสเซส จำกัด</option><option value="บริษัท ส.อรุณ คอนกรีต จำกัด">บริษัท ส.อรุณ คอนกรีต จำกัด</option><option value="บริษัทแสตนดาร์ด คอนสตรัคชั่น จำกัด">บริษัทแสตนดาร์ด คอนสตรัคชั่น จำกัด</option><option value="บริษัท หรง ช่วง เทคโนโลยี (ประเทศไทย) จำกัด">บริษัท หรง ช่วง เทคโนโลยี (ประเทศไทย) จำกัด</option><option value="บริษัท หรงไท่ เทคโนโลยี (ประเทศไทย) จำกัด">บริษัท หรงไท่ เทคโนโลยี (ประเทศไทย) จำกัด</option><option value="บริษัท เหอหยิง อินเตอร์เนชั่นแนล (ประเทศไทย)จำกัด">บริษัท เหอหยิง อินเตอร์เนชั่นแนล (ประเทศไทย)จำกัด</option><option value="บริษัท อิตาเลียนไทย ดีเวล๊อปเมนต์  จำกัด (มหาชน)">บริษัท อิตาเลียนไทย ดีเวล๊อปเมนต์  จำกัด (มหาชน)</option><option value="บริษัทอึ้งทงกี่ จำกัด">บริษัทอึ้งทงกี่ จำกัด</option><option value="บริษัท เอ็นดีซี เดโคเรชั่น เอ็นจิเนียริ่ง (ประเทศไทย) จำกัด">บริษัท เอ็นดีซี เดโคเรชั่น เอ็นจิเนียริ่ง (ประเทศไทย) จำกัด</option><option value="บริษัท เอ็นเอสทีแอนด์วี เข็มเจาะ จำกัด">บริษัท เอ็นเอสทีแอนด์วี เข็มเจาะ จำกัด</option><option value="บริษัท เอ็มซีเค อินเตอร์เนชั่นแนล เทรดดิ้ง จำกัด">บริษัท เอ็มซีเค&nbsp;อินเตอร์เนชั่นแนล&nbsp;เทรดดิ้ง&nbsp;จำกัด</option><option value="บ.โรซาร์เทรดดิ้ง จก.">บ.โรซาร์เทรดดิ้ง จก.</option><option value="บ.ลิฟวิ่ง มาร์ท จก.">บ.ลิฟวิ่ง มาร์ท จก.</option><option value="บ.ลิ้มพัฒนาดีซีเมนต์ จก.">บ.ลิ้มพัฒนาดีซีเมนต์ จก.</option><option value="บ.ลี อาร์คีเทค จก.">บ.ลี อาร์คีเทค จก.</option><option value="บ.โลหะกิจอุดร จก.">บ.โลหะกิจอุดร จก.</option><option value="บ.วงษ์สยามก่อสร้าง จก.">บ.วงษ์สยามก่อสร้าง จก.</option><option value="บ.วนาวัฒน์วัสดุ จก.">บ.วนาวัฒน์วัสดุ จก.</option><option value="บ.วรวิทย์วัสดุก่อสร้างอยุธยา จก.">บ.วรวิทย์วัสดุก่อสร้างอยุธยา จก.</option><option value="บ.วอลท์เซ็นเอ็นเตอไพรซ์ จก.">บ.วอลท์เซ็นเอ็นเตอไพรซ์ จก.</option><option value="บ.วัฒนาโฮมเซ็นเตอร์ จก.">บ.วัฒนาโฮมเซ็นเตอร์ จก.</option><option value="บ.วีระพานิช เชียงใหม่ จก.">บ.วีระพานิช เชียงใหม่ จก.</option><option value="บ.วี.สถาปัตย์ จก.">บ.วี.สถาปัตย์ จก.</option><option value="บ.ศรีเจริญ โฮมเซ็นเตอร์ จก.">บ.ศรีเจริญ โฮมเซ็นเตอร์ จก.</option><option value="บ.ศรีเมืองวัสดุ(2526) จก.">บ.ศรีเมืองวัสดุ(2526) จก.</option><option value="บ.ศิริภัณฑ์ ท่าศาลา จก.">บ.ศิริภัณฑ์ ท่าศาลา จก.</option><option value="บ.สงวนพงษ์วัสดุก่อสร้าง จก.">บ.สงวนพงษ์วัสดุก่อสร้าง จก.</option><option value="บ.ส่งเสริมสกุลฮ้อ จก.">บ.ส่งเสริมสกุลฮ้อ จก.</option><option value="บ.สถาพรวัฒนา ค้าวัสดุก่อสร้าง จก.">บ.สถาพรวัฒนา ค้าวัสดุก่อสร้าง จก.</option><option value="บ.สมาร์ท โฮมโปรดักส์ จก.">บ.สมาร์ท โฮมโปรดักส์ จก.</option><option value="บ.สระบุรีศุภภัณฑ์(1984) จก.">บ.สระบุรีศุภภัณฑ์(1984) จก.</option><option value="บ.สว่างรุ่งโรจน์โฮมมาร์ท จก.">บ.สว่างรุ่งโรจน์โฮมมาร์ท จก.</option><option value="บ.สหชัยธุรกิจก่อสร้าง 1993 จก.">บ.สหชัยธุรกิจก่อสร้าง 1993 จก.</option><option value="บ.สหปลื้ม จก.">บ.สหปลื้ม จก.</option><option value="บ.สหสินไทยค้าวัตถุก่อสร้าง จก.">บ.สหสินไทยค้าวัตถุก่อสร้าง จก.</option><option value="บ.สหะชัยวัสดุก่อสร้าง จก.">บ.สหะชัยวัสดุก่อสร้าง จก.</option><option value="บ.ส.เอื้อสุข จก.">บ.ส.เอื้อสุข จก.</option><option value="บ.สันติรัตน์บิวดิ้ง จก.">บ.สันติรัตน์บิวดิ้ง จก.</option><option value="บ.สิทธิพันธุ์ มิกซ์โฮม จก.">บ.สิทธิพันธุ์ มิกซ์โฮม จก.</option><option value="บ.สี่แสงการโยธา(1979) จก.">บ.สี่แสงการโยธา(1979) จก.</option><option value="บ.สุโขทัยซีเมนต์ จก.">บ.สุโขทัยซีเมนต์ จก.</option><option value="บ.สุทธิพงศ์ค้าวัสดุก่อสร้าง(072)จก.">บ.สุทธิพงศ์ค้าวัสดุก่อสร้าง(072)จก.</option><option value="บ.สุภาพัฒน์ 1990 จก.">บ.สุภาพัฒน์ 1990 จก.</option><option value="บ.สุรสิทธิ์ค้าวัสดุ จก.">บ.สุรสิทธิ์ค้าวัสดุ จก.</option><option value="บ.เสริมมิตร เอ็กซ์เซคคิวทีฟ จก.">บ.เสริมมิตร เอ็กซ์เซคคิวทีฟ จก.</option><option value="บ.แสงชัยพาณิชย์ค้าวัสดุก่อสร้าง จก.">บ.แสงชัยพาณิชย์ค้าวัสดุก่อสร้าง จก.</option><option value="บ.แสงชัยแมคโครวัสดุภัณฑ์ จก.">บ.แสงชัยแมคโครวัสดุภัณฑ์ จก.</option><option value="บ.แสงทองโฮมมาร์ท จก. (สำนักงานใหญ่)">บ.แสงทองโฮมมาร์ท จก. (สำนักงานใหญ่)</option><option value="บ.แสงอู่ทองเคหภัณฑ์ จก.">บ.แสงอู่ทองเคหภัณฑ์ จก.</option><option value="บ.หลักเมือง-ถาวรพาณิชย์ จก.">บ.หลักเมือง-ถาวรพาณิชย์ จก.</option><option value="บ.หัวถนน(สุราษฎร์ธานี) จก.">บ.หัวถนน(สุราษฎร์ธานี) จก.</option><option value="บ.หัวเวียง จก.">บ.หัวเวียง จก.</option><option value="บ.หาดใหญ่ไพรัตน์ จก.">บ.หาดใหญ่ไพรัตน์ จก.</option><option value="บ.อนุสรณ์ค้าวัสดุก่อสร้าง จก.">บ.อนุสรณ์ค้าวัสดุก่อสร้าง จก.</option><option value="บ.อภิธน โฮมมาร์ท จก.">บ.อภิธน โฮมมาร์ท จก.</option><option value="บ.อรลักษณ์สิงห์บุรี (1994) จก.">บ.อรลักษณ์สิงห์บุรี (1994) จก.</option><option value="บ.ออเซ่งฮวด(1982) จก.">บ.ออเซ่งฮวด(1982) จก.</option><option value="บ.อ้อมใหญ่ค้าไม้ (2002) จก.">บ.อ้อมใหญ่ค้าไม้ (2002) จก.</option><option value="บ.อาร์ตกรีต จก.">บ.อาร์ตกรีต จก.</option><option value="บ.อาร์ พี เอ็น เอ็นจิเนียริ่ง แอนด์ การ์เดนนิ่ง จก.">บ.อาร์ พี เอ็น เอ็นจิเนียริ่ง แอนด์ การ์เดนนิ่ง จก.</option><option value="บ.อิตัลไทยวิศวกรรม จก.">บ.อิตัลไทยวิศวกรรม จก.</option><option value="บ.อิตาเลียนไทย ดีเวล๊อปเมนต์ จก. (มหาชน)">บ.อิตาเลียนไทย ดีเวล๊อปเมนต์ จก. (มหาชน)</option><option value="บ.อินทร์บุรีซีเมนต์ จก.">บ.อินทร์บุรีซีเมนต์ จก.</option><option value="บ.อิวหลี คอร์ปอเรชั่น จก.">บ.อิวหลี คอร์ปอเรชั่น จก.</option><option value="บ.อุดมชัยกู๊ดโฮมสมุทรสงคราม จก.">บ.อุดมชัยกู๊ดโฮมสมุทรสงคราม จก.</option><option value="บ.อุดรตั้งกิมเซ้งวัสดุภัณฑ์ จก.">บ.อุดรตั้งกิมเซ้งวัสดุภัณฑ์ จก.</option><option value="บ.อุดรสยามเซรามิค จก.">บ.อุดรสยามเซรามิค จก.</option><option value="บ.เอกภัณฑ์ซีเมนต์ จก.">บ.เอกภัณฑ์ซีเมนต์ จก.</option><option value="บ.เอกภัณฑ์อรัญโฮม จก.">บ.เอกภัณฑ์อรัญโฮม จก.</option><option value="บ.เอเซ โคเกียว จก.">บ.เอเซ โคเกียว จก.</option><option value="บ.เอเซียค้าไม้และวัตถุก่อสร้าง จก. สนญ.">บ.เอเซียค้าไม้และวัตถุก่อสร้าง จก. สนญ.</option><option value="บ.เอ็น.อี.ซี. คอนกรีตโปรดักส์ จก.">บ.เอ็น.อี.ซี. คอนกรีตโปรดักส์ จก.</option><option value="บ.เอ.สยามกรุ๊ปหาดใหญ่ จก.">บ.เอ.สยามกรุ๊ปหาดใหญ่ จก.</option><option value="บ.เอ เอ็ม เสรี กรุ๊ป 1998 จก.">บ.เอ เอ็ม เสรี กรุ๊ป 1998 จก.</option><option value="บ.เอ แอนด์ บี รุ่งเรือง จก.">บ.เอ แอนด์ บี รุ่งเรือง จก.</option><option value="บ.แอ็ดวานซ์ พรีแฟบ จก.">บ.แอ็ดวานซ์ พรีแฟบ จก.</option><option value="บ.โอ อาร์ ซี พรีเมียร์ จก.">บ.โอ อาร์ ซี พรีเมียร์ จก.</option><option value="บ.เฮงย่งสูงหลานหลวง จก.">บ.เฮงย่งสูงหลานหลวง จก.</option><option value="บ.โฮม แคร์ เอ็นจิเนียริ่ง จก.">บ.โฮม แคร์ เอ็นจิเนียริ่ง จก.</option><option value="บ.โฮมมาร์ท ช.โลหะกิจ จก.">บ.โฮมมาร์ท ช.โลหะกิจ จก.</option><option value="บ.โฮมมาร์ท เซ็นเตอร์ จก.">บ.โฮมมาร์ท เซ็นเตอร์ จก.</option><option value="บ.โฮมมาร์ท หลังสวน จก.">บ.โฮมมาร์ท หลังสวน จก.</option><option value="บ.โฮมเมท 18 จก.">บ.โฮมเมท 18 จก.</option><option value="บ.ไฮกรีตโปรดักส์ แอนด์ เทคโนโลยี่ จก.">บ.ไฮกรีตโปรดักส์ แอนด์ เทคโนโลยี่ จก.</option><option value="บ.ไฮเวย์ ซิเมนต์ จก.">บ.ไฮเวย์ ซิเมนต์ จก.</option><option value="ลูกค้าทั่วไป">ลูกค้าทั่วไป</option><option value="ลูกค้าทั่วไป ***">ลูกค้าทั่วไป ***</option><option value="ลูกค้าทั่วไป(Call Center)">ลูกค้าทั่วไป(Call Center)</option><option value="ลูกค้า VIP">ลูกค้า VIP</option><option value="หจก.14 ซิเมนต์">หจก.14 ซิเมนต์</option><option value="หจก.กิจตรงอุบล">หจก.กิจตรงอุบล</option><option value="หจก.กิจถาวร คอนกรีต">หจก.กิจถาวร คอนกรีต</option><option value="หจก.กิจเพิ่มพูลค้าวัสดุก่อสร้าง">หจก.กิจเพิ่มพูลค้าวัสดุก่อสร้าง</option><option value="หจก.เกษมซีเมนต์">หจก.เกษมซีเมนต์</option><option value="หจก.เกี้ยนเฮงวัสดุก่อสร้าง">หจก.เกี้ยนเฮงวัสดุก่อสร้าง</option><option value="หจก.เขาใหญ่ท่าทราย">หจก.เขาใหญ่ท่าทราย</option><option value="หจก.คูขุดค้าวัสดุก่อสร้าง">หจก.คูขุดค้าวัสดุก่อสร้าง</option><option value="หจก.โคราช ตังฮง">หจก.โคราช ตังฮง</option><option value="หจก.จั่วเซ้งยโสธร">หจก.จั่วเซ้งยโสธร</option><option value="หจก.จุฑารัตน์คอนกรีต">หจก.จุฑารัตน์คอนกรีต</option><option value="หจก.จุรีภัณฑ์วัสดุ">หจก.จุรีภัณฑ์วัสดุ</option><option value="หจก.เจริญพัฒนา">หจก.เจริญพัฒนา</option><option value="หจก.เจริญภัณฑ์สามชุก (1995)">หจก.เจริญภัณฑ์สามชุก (1995)</option><option value="หจก.ช.วิสิฏฐ์">หจก.ช.วิสิฏฐ์</option><option value="หจก.ช.ฮกเซ้งวัสดุก่อสร้าง">หจก.ช.ฮกเซ้งวัสดุก่อสร้าง</option><option value="หจก.เชียงคำอลูมิเนียม (2005)">หจก.เชียงคำอลูมิเนียม (2005)</option><option value="หจก.เชียงใหม่ตังอู๋เซ้ง">หจก.เชียงใหม่ตังอู๋เซ้ง</option><option value="หจก.เชียงใหม่วีระกิจ">หจก.เชียงใหม่วีระกิจ</option><option value="หจก.โชคพนากิจวัสดุภัณฑ์">หจก.โชคพนากิจวัสดุภัณฑ์</option><option value="หจก.โชควิชัยค้าวัสดุ">หจก.โชควิชัยค้าวัสดุ</option><option value="หจก.ซุ่นเชียงโคกกลอย">หจก.ซุ่นเชียงโคกกลอย</option><option value="หจก.ซุ่ยเฮงเส็ง">หจก.ซุ่ยเฮงเส็ง</option><option value="หจก.ต.วิวัฒน์ค้าวัสดุภัณฑ์ (1987)">หจก.ต.วิวัฒน์ค้าวัสดุภัณฑ์ (1987)</option><option value="หจก.ต.แสงอุปกรณ์สุพรรณบุรี">หจก.ต.แสงอุปกรณ์สุพรรณบุรี</option><option value="หจก.ตั้งเจี้ยเฮง">หจก.ตั้งเจี้ยเฮง</option><option value="หจก.ทนงศักดิ์วิศวภัณฑ์">หจก.ทนงศักดิ์วิศวภัณฑ์</option><option value="หจก.ท่าช้างทอง">หจก.ท่าช้างทอง</option><option value="หจก.เทพประทานพร วัสดุภัณฑ์">หจก.เทพประทานพร วัสดุภัณฑ์</option><option value="หจก.นครสวรรค์เต็กเซ่งฮง">หจก.นครสวรรค์เต็กเซ่งฮง</option><option value="หจก.โนนศิลาดาวเงินคอนกรีต">หจก.โนนศิลาดาวเงินคอนกรีต</option><option value="หจก.บรรจงกิจคอนกรีต">หจก.บรรจงกิจคอนกรีต</option><option value="หจก.บ้านโป่งกิตติภัณฑ์">หจก.บ้านโป่งกิตติภัณฑ์</option><option value="หจก.บุญบันดาลการค้า">หจก.บุญบันดาลการค้า</option><option value="หจก.บุรีรัมย์นำโชค">หจก.บุรีรัมย์นำโชค</option><option value="หจก.ป.ยิ่งรวยการโยธา">หจก.ป.ยิ่งรวยการโยธา</option><option value="หจก.ประพจน์พาณิชย์">หจก.ประพจน์พาณิชย์</option><option value="หจก.เป็นหนึ่งการโยธา 2021(ช่างเก้ง)">หจก.เป็นหนึ่งการโยธา 2021(ช่างเก้ง)</option><option value="หจก.พนมซิเมนต์">หจก.พนมซิเมนต์</option><option value="หจก.พิบูลย์ไทยพาณิชย์">หจก.พิบูลย์ไทยพาณิชย์</option><option value="หจก.เพชรบุรีวัชรกิจ">หจก.เพชรบุรีวัชรกิจ</option><option value="หจก.เพิ่มทรัพย์ค้าวัสดุก่อสร้าง">หจก.เพิ่มทรัพย์ค้าวัสดุก่อสร้าง</option><option value="หจก.ภาพันธ์">หจก.ภาพันธ์</option><option value="หจก.ม.บุญทำพานิช">หจก.ม.บุญทำพานิช</option><option value="หจก.มีนา คอนกรีตแสตมป์">หจก.มีนา คอนกรีตแสตมป์</option><option value="หจก.เมืองจันทร์การโยธา">หจก.เมืองจันทร์การโยธา</option><option value="หจก.ยงชัยพาณิชย์">หจก.ยงชัยพาณิชย์</option><option value="หจก.ย่งเส็ง โฮมมาร์ท">หจก.ย่งเส็ง โฮมมาร์ท</option><option value="หจก.ย่งหลีเส็ง(1994)">หจก.ย่งหลีเส็ง(1994)</option><option value="หจก.ยั่งยืนวัสดุภัณฑ์">หจก.ยั่งยืนวัสดุภัณฑ์</option><option value="หจก.รวมกิจเจริญ">หจก.รวมกิจเจริญ</option><option value="หจก.รัตนนาคะ">หจก.รัตนนาคะ</option><option value="หจก.รัตนประดิษฐ์ค้าไม้ศรีราชา">หจก.รัตนประดิษฐ์ค้าไม้ศรีราชา</option><option value="หจก.รุ่งกิจวัสดุการสร้าง">หจก.รุ่งกิจวัสดุการสร้าง</option><option value="หจก.โรงค้าไม้กือหลี">หจก.โรงค้าไม้กือหลี</option><option value="หจก.ลำปางเตียวเชียงล้ง">หจก.ลำปางเตียวเชียงล้ง</option><option value="หจก.เล้าจิ้นเงี้ยบ">หจก.เล้าจิ้นเงี้ยบ</option><option value="หจก.วัชระโฮมมาร์ท">หจก.วัชระโฮมมาร์ท</option><option value="หจก.วารินโชคชัยโลหะกิจ">หจก.วารินโชคชัยโลหะกิจ</option><option value="หจก.วิวัฒน์ภัณฑ์พาณิชย์">หจก.วิวัฒน์ภัณฑ์พาณิชย์</option><option value="หจก.วุฒิชัยเจริญวัสดุภัณฑ์">หจก.วุฒิชัยเจริญวัสดุภัณฑ์</option><option value="หจก.ศรีสมพร">หจก.ศรีสมพร</option><option value="หจก.ศรีสวัสดิ์โยธาการ จันทบุรี">หจก.ศรีสวัสดิ์โยธาการ จันทบุรี</option><option value="หจก.สยาม เค กรุ๊ป">หจก.สยาม เค กรุ๊ป</option><option value="หจก.สระบุรีค้าวัตถุก่อสร้าง">หจก.สระบุรีค้าวัตถุก่อสร้าง</option><option value="หจก.สหกิจถาวรภัณฑ์">หจก.สหกิจถาวรภัณฑ์</option><option value="หจก.สหกิจทวีภัณฑ์">หจก.สหกิจทวีภัณฑ์</option><option value="หจก.สหวัฒน์ค้าอุปกรณ์ก่อสร้าง">หจก.สหวัฒน์ค้าอุปกรณ์ก่อสร้าง</option><option value="หจก.สหสินปอแซ">หจก.สหสินปอแซ</option><option value="หจก.สินชัยโฮมซัพพลายส์">หจก.สินชัยโฮมซัพพลายส์</option><option value="หจก.สุกัญญา ซัพพลาย (2003)">หจก.สุกัญญา ซัพพลาย (2003)</option><option value="หจก.สุโขทัยแสงอุปกรณ์">หจก.สุโขทัยแสงอุปกรณ์</option><option value="หจก.หมงฮวดโฮมมาร์ท">หจก.หมงฮวดโฮมมาร์ท</option><option value="หจก.อังครงค์รักษ์พาณิชย์">หจก.อังครงค์รักษ์พาณิชย์</option><option value="หจก.อ่าวอุดมค้าไม้">หจก.อ่าวอุดมค้าไม้</option><option value="หจก.อุดรเจริญทองโลหะกิจ">หจก.อุดรเจริญทองโลหะกิจ</option><option value="หจก.อุดรสยามโลหะกิจ">หจก.อุดรสยามโลหะกิจ</option><option value="หจก.เอส.อาร์.สุขภัณฑ์">หจก.เอส.อาร์.สุขภัณฑ์</option><option value="หจก.เอี๊ยบซิ้นเชียง">หจก.เอี๊ยบซิ้นเชียง</option><option value="หจก.ฮกเชียงล้งพาณิชย์ (โกดังสินค้า)">หจก.ฮกเชียงล้งพาณิชย์ (โกดังสินค้า)</option><option value="หจก.โฮมรีเทล">หจก.โฮมรีเทล</option><option value="หสน.อารยะรังสฤษฎ์">หสน.อารยะรังสฤษฎ์</option><option value="ห้างหุ้นส่วนจำกัด จำลองชัยคอนกรีต">ห้างหุ้นส่วนจำกัด จำลองชัยคอนกรีต</option><option value="ห้างหุ้นส่วนจำกัด โซกคะลาการโยธา">ห้างหุ้นส่วนจำกัด โซกคะลาการโยธา</option><option value="ห้างหุ้นส่วนจำกัด นาซ่า คอนกรีต">ห้างหุ้นส่วนจำกัด นาซ่า คอนกรีต</option><option value="ห้างหุ้นส่วนจำกัดวี.เอส. อินดัสเตรียล ซัพพลาย">ห้างหุ้นส่วนจำกัดวี.เอส. อินดัสเตรียล ซัพพลาย</option><option value="ห้างหุ้นส่วนจำกัด สารภีพานิช">ห้างหุ้นส่วนจำกัด สารภีพานิช</option><option value="ห้างหุ้นส่วนจำกัด เอ็นพี วัสดุก่อสร้าง">ห้างหุ้นส่วนจำกัด เอ็นพี วัสดุก่อสร้าง</option></select>
+  </div>
+  <div class="flex flex-col gap-1">
+    <span class="filter-label text-[#4B5563]">ไซต์งาน</span>
+    <div class="flex items-center gap-1.5">
+      <input id="f-site" list="site-list" placeholder="พิมพ์ค้นหา..." class="f-sel focus:outline-none" style="flex:1">
+      <button id="clear-site" class="text-[#4B5563] hover:text-[#111827] text-lg leading-none cursor-pointer" title="ล้าง">×</button>
+    </div>
+  </div>
+  <datalist id="site-list"></datalist>
+
+  <div class="flex flex-col gap-1">
+    <span class="filter-label text-[#4B5563]">วันที่</span>
+    <div class="flex items-center gap-1.5">
+      <input id="f-date-from" type="text" placeholder="dd/mm/yyyy" class="text-sm border border-[#DDE3EA] rounded-md px-2 py-1 focus:outline-none focus:border-[#2563EB] w-full h-8 bg-white">
+      <span class="text-[#4B5563]">-</span>
+      <input id="f-date-to" type="text" placeholder="dd/mm/yyyy" class="text-sm border border-[#DDE3EA] rounded-md px-2 py-1 focus:outline-none focus:border-[#2563EB] w-full h-8 bg-white">
+      <button id="clear-date" class="text-[#4B5563] hover:text-[#111827] text-lg leading-none cursor-pointer" title="ล้าง">×</button>
+    </div>
+  </div>
+  <div class="flex flex-col gap-1">
+    <span class="filter-label text-[#4B5563]">ประเภท DP</span>
+    <div class="flex rounded-md border border-[#D8DDE6] overflow-hidden text-sm">
+      <button data-grp="all" class="grp-btn active flex-1 px-3 py-1.5 font-medium border-r border-[#D8DDE6] cursor-pointer">ทั้งหมด</button>
+      <button data-grp="sda" class="grp-btn flex-1 px-3 py-1.5 font-medium border-r border-[#D8DDE6] cursor-pointer">SDA</button>
+      <button data-grp="paper" class="grp-btn flex-1 px-3 py-1.5 font-medium border-r border-[#D8DDE6] cursor-pointer">Paper</button>
+      <button data-grp="edp" class="grp-btn flex-1 px-3 py-1.5 font-medium cursor-pointer">EDP</button>
+    </div>
+  </div>
+</div>
+
+<!-- KPI CARDS -->
+<div class="kpi-grid px-6 pt-3 pb-3">
+  <div class="bg-white rounded-lg p-4 border border-[#D8DDE6]">
+    <p class="text-sm font-semibold text-[#4B5563] uppercase tracking-wide">DP ทั้งหมด</p>
+    <p id="kpi-total" class="text-3xl font-bold text-[#111827] mt-1.5 tabular-nums">234,556</p>
+    <div class="flex flex-wrap gap-1 mt-1.5">
+      <span id="kpi-n-sda" class="text-xs badge-sda   px-1.5 py-0.5 rounded-full font-medium">SDA: 24,720</span>
+      <span id="kpi-n-paper" class="text-xs badge-paper px-1.5 py-0.5 rounded-full font-medium">Paper: 197,542</span>
+      <span id="kpi-n-edp" class="text-xs badge-edp   px-1.5 py-0.5 rounded-full font-medium">EDP: 12,294</span>
+    </div>
+  </div>
+  <div class="bg-white rounded-lg p-4 border border-[#D8DDE6]">
+    <p id="label-kpi-unsigned-title" class="text-sm font-semibold text-[#B91C1C] uppercase tracking-wide">⚠ ยังไม่ลงนาม</p>
+    <p id="kpi-unsigned" class="text-3xl font-bold text-[#B91C1C] mt-1.5 tabular-nums">197,456</p>
+    <div class="flex gap-1.5 mt-1.5">
+      <span id="kpi-unsigned-pct" class="text-xs bg-[#F5F6F8] text-[#B91C1C] px-1.5 py-0.5 rounded-full font-semibold">84.2%</span>
+      <span id="kpi-avg-unsigned" class="text-xs text-[#4B5563] self-center">เฉลี่ย 49.8 วัน</span>
+    </div>
+  </div>
+  <div class="bg-white rounded-lg p-4 border border-[#D8DDE6]">
+    <p id="label-kpi-signed-title" class="text-sm font-semibold text-[#047857] uppercase tracking-wide">✓ ลงนามแล้ว</p>
+    <p id="kpi-signed" class="text-3xl font-bold text-[#047857] mt-1.5 tabular-nums">37,100</p>
+    <div class="flex gap-1.5 mt-1.5">
+      <span id="kpi-signed-pct" class="text-xs bg-[#F5F6F8] text-[#047857] px-1.5 py-0.5 rounded-full font-semibold">15.8%</span>
+    </div>
+  </div>
+  <div class="bg-white rounded-lg p-4 border border-[#D8DDE6]">
+    <p id="label-kpi-avgdays-title" class="text-sm font-semibold text-[#2563EB] uppercase tracking-wide">เฉลี่ยวันลงนาม</p>
+    <p id="kpi-avgdays" class="text-3xl font-bold text-[#2563EB] mt-1.5 tabular-nums">1.6</p>
+    <p id="label-kpi-avgdays-desc" class="text-xs text-[#4B5563] mt-1.5">วัน (signed − dp_date)</p>
+  </div>
+</div>
+
+<!-- CHARTS -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-4 px-6 pb-4">
+  <div class="bg-white rounded-lg border border-[#D8DDE6] p-5">
+    <div class="flex items-start justify-between mb-3">
+      <div>
+        <h2 id="label-chart-unsigned-title" class="text-sm font-semibold text-[#111827]">DP ยังไม่ได้ลงนาม</h2>
+        <p id="label-chart-unsigned-desc" class="text-xs text-[#4B5563] mt-0.5">จำนวนวันนับจากออก DP จนถึงวันนี้ (7 พ.ค. 2569)</p>
+      </div>
+      <span id="unsigned-count-badge" class="text-xs font-bold text-[#B91C1C] bg-[#F5F6F8] px-2 py-1 rounded-full whitespace-nowrap">197,456 รายการ</span>
+    </div>
+    <canvas id="chart-unsigned" width="853" height="426" style="display: block; box-sizing: border-box; height: 341px; width: 682px;"></canvas>
+  </div>
+  <div class="bg-white rounded-lg border border-[#D8DDE6] p-5">
+    <div class="flex items-start justify-between mb-3">
+      <div>
+        <h2 id="label-chart-signed-title" class="text-sm font-semibold text-[#111827]">DP ที่ลงนามแล้ว</h2>
+        <p id="label-chart-signed-desc" class="text-xs text-[#4B5563] mt-0.5">จำนวนวัน (signed_date − dp_date) ตั้งแต่ออก DP จนลูกค้าเซ็น</p>
+      </div>
+      <span id="signed-count-badge" class="text-xs font-bold text-[#047857] bg-[#F5F6F8] px-2 py-1 rounded-full whitespace-nowrap">37,100 รายการ</span>
+    </div>
+    <canvas id="chart-signed" width="853" height="426" style="display: block; box-sizing: border-box; height: 341px; width: 682px;"></canvas>
+  </div>
+</div>
+
+<!-- SUMMARY TABLE -->
+<div class="px-6 pb-8">
+  <div class="bg-white rounded-lg border border-[#D8DDE6] overflow-hidden">
+    <div class="px-5 py-3 border-b border-[#D8DDE6] flex items-center justify-between">
+      <h2 class="text-sm font-semibold text-[#111827]">สรุปตาม <span id="table-level" class="text-[#2563EB]">Division</span></h2>
+      <p id="label-table-sort" class="text-xs text-[#4B5563]">เรียงตามยังไม่ลงนาม มาก→น้อย</p>
+    </div>
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="bg-[#F5F6F8] text-xs border-b border-[#D8DDE6]">
+            <th class="text-left px-4 py-3 font-semibold text-[#4B5563] border-r border-[#D8DDE6]">ชื่อ</th>
+            <th class="text-right px-4 py-3 font-semibold text-[#4B5563] border-r border-[#D8DDE6]">DP ทั้งหมด</th>
+            <th id="label-th-unsigned" class="text-right px-4 py-3 font-semibold text-[#B91C1C] border-r border-[#D8DDE6]">ยังไม่ลงนาม</th>
+            <th class="text-right px-4 py-3 font-semibold text-[#2563EB] border-r border-[#D8DDE6]">SDA ไม่ลง</th>
+            <th class="text-right px-4 py-3 font-semibold text-[#B45309] border-r border-[#D8DDE6]">Paper ไม่ลง</th>
+            <th class="text-right px-4 py-3 font-semibold text-[#047857] border-r border-[#D8DDE6]">EDP ไม่ลง</th>
+            <th id="label-th-signed" class="text-right px-4 py-3 font-semibold text-[#047857] border-r border-[#D8DDE6]">ลงนามแล้ว</th>
+            <th id="label-th-signed-pct" class="text-right px-4 py-3 font-semibold text-[#4B5563] border-r border-[#D8DDE6]">% ลงนาม</th>
+            <th class="text-right px-4 py-3 font-semibold text-[#2563EB]">เฉลี่ยวัน</th>
+          </tr>
+        </thead>
+        <tbody id="summary-table"><tr class="border-b border-[#D8DDE6]">
+      <td class="px-4 py-2.5 font-medium text-[#111827] max-w-xs truncate" title="CPAC Metro">CPAC Metro</td>
+      <td class="px-4 py-2.5 text-right text-[#374151] tabular-nums">69,139</td>
+      <td class="px-4 py-2.5 text-right tabular-nums font-bold text-[#B91C1C]">67,830</td>
+      <td class="px-4 py-2.5 text-right text-[#2563EB] tabular-nums">0</td>
+      <td class="px-4 py-2.5 text-right text-[#B45309] tabular-nums">67,830</td>
+      <td class="px-4 py-2.5 text-right text-[#047857] tabular-nums">0</td>
+      <td class="px-4 py-2.5 text-right text-[#047857] tabular-nums">1,309</td>
+      <td class="px-4 py-2.5"><div class="flex items-center gap-1.5 justify-end">
+      <div class="w-14 h-1.5 bg-[#F5F6F8] rounded-full overflow-hidden">
+        <div class="h-full rounded-full bg-[#B91C1C]" style="width:2%"></div>
+      </div>
+      <span class="font-semibold text-[#B91C1C] tabular-nums w-12 text-right">1.9%</span>
+    </div></td>
+      <td class="px-4 py-2.5 text-right text-[#2563EB] tabular-nums font-medium">1.3</td>
+    </tr><tr class="border-b border-[#D8DDE6]">
+      <td class="px-4 py-2.5 font-medium text-[#111827] max-w-xs truncate" title="CPAC East">CPAC East</td>
+      <td class="px-4 py-2.5 text-right text-[#374151] tabular-nums">52,737</td>
+      <td class="px-4 py-2.5 text-right tabular-nums font-bold text-[#B91C1C]">39,148</td>
+      <td class="px-4 py-2.5 text-right text-[#2563EB] tabular-nums">0</td>
+      <td class="px-4 py-2.5 text-right text-[#B45309] tabular-nums">39,147</td>
+      <td class="px-4 py-2.5 text-right text-[#047857] tabular-nums">1</td>
+      <td class="px-4 py-2.5 text-right text-[#047857] tabular-nums">13,589</td>
+      <td class="px-4 py-2.5"><div class="flex items-center gap-1.5 justify-end">
+      <div class="w-14 h-1.5 bg-[#F5F6F8] rounded-full overflow-hidden">
+        <div class="h-full rounded-full bg-[#B91C1C]" style="width:26%"></div>
+      </div>
+      <span class="font-semibold text-[#B91C1C] tabular-nums w-12 text-right">25.8%</span>
+    </div></td>
+      <td class="px-4 py-2.5 text-right text-[#2563EB] tabular-nums font-medium">2.9</td>
+    </tr><tr class="border-b border-[#D8DDE6]">
+      <td class="px-4 py-2.5 font-medium text-[#111827] max-w-xs truncate" title="CPAC Northeast">CPAC Northeast</td>
+      <td class="px-4 py-2.5 text-right text-[#374151] tabular-nums">31,395</td>
+      <td class="px-4 py-2.5 text-right tabular-nums font-bold text-[#B91C1C]">29,776</td>
+      <td class="px-4 py-2.5 text-right text-[#2563EB] tabular-nums">0</td>
+      <td class="px-4 py-2.5 text-right text-[#B45309] tabular-nums">29,776</td>
+      <td class="px-4 py-2.5 text-right text-[#047857] tabular-nums">0</td>
+      <td class="px-4 py-2.5 text-right text-[#047857] tabular-nums">1,619</td>
+      <td class="px-4 py-2.5"><div class="flex items-center gap-1.5 justify-end">
+      <div class="w-14 h-1.5 bg-[#F5F6F8] rounded-full overflow-hidden">
+        <div class="h-full rounded-full bg-[#B91C1C]" style="width:5%"></div>
+      </div>
+      <span class="font-semibold text-[#B91C1C] tabular-nums w-12 text-right">5.2%</span>
+    </div></td>
+      <td class="px-4 py-2.5 text-right text-[#2563EB] tabular-nums font-medium">0.3</td>
+    </tr><tr class="border-b border-[#D8DDE6]">
+      <td class="px-4 py-2.5 font-medium text-[#111827] max-w-xs truncate" title="RMC - South Chain">RMC - South Chain</td>
+      <td class="px-4 py-2.5 text-right text-[#374151] tabular-nums">26,067</td>
+      <td class="px-4 py-2.5 text-right tabular-nums font-bold text-[#B91C1C]">23,811</td>
+      <td class="px-4 py-2.5 text-right text-[#2563EB] tabular-nums">0</td>
+      <td class="px-4 py-2.5 text-right text-[#B45309] tabular-nums">23,811</td>
+      <td class="px-4 py-2.5 text-right text-[#047857] tabular-nums">0</td>
+      <td class="px-4 py-2.5 text-right text-[#047857] tabular-nums">2,256</td>
+      <td class="px-4 py-2.5"><div class="flex items-center gap-1.5 justify-end">
+      <div class="w-14 h-1.5 bg-[#F5F6F8] rounded-full overflow-hidden">
+        <div class="h-full rounded-full bg-[#B91C1C]" style="width:9%"></div>
+      </div>
+      <span class="font-semibold text-[#B91C1C] tabular-nums w-12 text-right">8.7%</span>
+    </div></td>
+      <td class="px-4 py-2.5 text-right text-[#2563EB] tabular-nums font-medium">0.4</td>
+    </tr><tr class="border-b border-[#D8DDE6]">
+      <td class="px-4 py-2.5 font-medium text-[#111827] max-w-xs truncate" title="CPAC North">CPAC North</td>
+      <td class="px-4 py-2.5 text-right text-[#374151] tabular-nums">29,888</td>
+      <td class="px-4 py-2.5 text-right tabular-nums font-bold text-[#B91C1C]">22,625</td>
+      <td class="px-4 py-2.5 text-right text-[#2563EB] tabular-nums">0</td>
+      <td class="px-4 py-2.5 text-right text-[#B45309] tabular-nums">22,625</td>
+      <td class="px-4 py-2.5 text-right text-[#047857] tabular-nums">0</td>
+      <td class="px-4 py-2.5 text-right text-[#047857] tabular-nums">7,263</td>
+      <td class="px-4 py-2.5"><div class="flex items-center gap-1.5 justify-end">
+      <div class="w-14 h-1.5 bg-[#F5F6F8] rounded-full overflow-hidden">
+        <div class="h-full rounded-full bg-[#B91C1C]" style="width:24%"></div>
+      </div>
+      <span class="font-semibold text-[#B91C1C] tabular-nums w-12 text-right">24.3%</span>
+    </div></td>
+      <td class="px-4 py-2.5 text-right text-[#2563EB] tabular-nums font-medium">0.7</td>
+    </tr><tr class="border-b border-[#D8DDE6]">
+      <td class="px-4 py-2.5 font-medium text-[#111827] max-w-xs truncate" title="CPAC West">CPAC West</td>
+      <td class="px-4 py-2.5 text-right text-[#374151] tabular-nums">25,330</td>
+      <td class="px-4 py-2.5 text-right tabular-nums font-bold text-[#B91C1C]">14,266</td>
+      <td class="px-4 py-2.5 text-right text-[#2563EB] tabular-nums">0</td>
+      <td class="px-4 py-2.5 text-right text-[#B45309] tabular-nums">14,266</td>
+      <td class="px-4 py-2.5 text-right text-[#047857] tabular-nums">0</td>
+      <td class="px-4 py-2.5 text-right text-[#047857] tabular-nums">11,064</td>
+      <td class="px-4 py-2.5"><div class="flex items-center gap-1.5 justify-end">
+      <div class="w-14 h-1.5 bg-[#F5F6F8] rounded-full overflow-hidden">
+        <div class="h-full rounded-full bg-[#B91C1C]" style="width:44%"></div>
+      </div>
+      <span class="font-semibold text-[#B91C1C] tabular-nums w-12 text-right">43.7%</span>
+    </div></td>
+      <td class="px-4 py-2.5 text-right text-[#2563EB] tabular-nums font-medium">1.1</td>
+    </tr></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- HORIZONTAL SUMMARY CARD -->
+<div class="px-6 pt-3 pb-3">
+  <div class="grid grid-cols-1 lg:grid-cols-5 gap-4">
+    <div class="bg-white rounded-lg border border-[#D8DDE6] overflow-hidden lg:col-span-2">
+      <div class="px-5 py-2.5 border-b border-[#D8DDE6] bg-[#F5F6F8]">
+        <h3 class="text-sm font-semibold text-[#111827]">ลูกค้าที่ยังไม่ได้ลงนาม</h3>
+      </div>
+      <!-- Row 1 -->
+      <div class="hsc-row flex items-center px-5 py-4 border-b border-[#D8DDE6] cursor-pointer hover:bg-[#F5F6F8] transition-colors" data-idx="0">
+        <div class="w-8 h-8 rounded-full bg-[#2563EB] bg-opacity-10 flex items-center justify-center flex-shrink-0 text-sm font-bold text-[#2563EB]">1</div>
+        <div class="ml-4 flex-1 min-w-0">
+          <p id="hsc-cust-1-name" class="text-sm font-medium text-[#111827] truncate">—</p>
+        </div>
+        <p id="hsc-cust-1-count" class="text-base font-bold text-[#111827] tabular-nums ml-3">—</p>
+      </div>
+      <!-- Row 2 -->
+      <div class="hsc-row flex items-center px-5 py-4 border-b border-[#D8DDE6] cursor-pointer hover:bg-[#F5F6F8] transition-colors" data-idx="1">
+        <div class="w-8 h-8 rounded-full bg-[#2563EB] bg-opacity-10 flex items-center justify-center flex-shrink-0 text-sm font-bold text-[#2563EB]">2</div>
+        <div class="ml-4 flex-1 min-w-0">
+          <p id="hsc-cust-2-name" class="text-sm font-medium text-[#111827] truncate">—</p>
+        </div>
+        <p id="hsc-cust-2-count" class="text-base font-bold text-[#111827] tabular-nums ml-3">—</p>
+      </div>
+      <!-- Row 3 -->
+      <div class="hsc-row flex items-center px-5 py-4 border-b border-[#D8DDE6] cursor-pointer hover:bg-[#F5F6F8] transition-colors" data-idx="2">
+        <div class="w-8 h-8 rounded-full bg-[#2563EB] bg-opacity-10 flex items-center justify-center flex-shrink-0 text-sm font-bold text-[#2563EB]">3</div>
+        <div class="ml-4 flex-1 min-w-0">
+          <p id="hsc-cust-3-name" class="text-sm font-medium text-[#111827] truncate">—</p>
+        </div>
+        <p id="hsc-cust-3-count" class="text-base font-bold text-[#111827] tabular-nums ml-3">—</p>
+      </div>
+      <!-- Row 4 -->
+      <div class="hsc-row flex items-center px-5 py-4 border-b border-[#D8DDE6] cursor-pointer hover:bg-[#F5F6F8] transition-colors" data-idx="3">
+        <div class="w-8 h-8 rounded-full bg-[#2563EB] bg-opacity-10 flex items-center justify-center flex-shrink-0 text-sm font-bold text-[#2563EB]">4</div>
+        <div class="ml-4 flex-1 min-w-0">
+          <p id="hsc-cust-4-name" class="text-sm font-medium text-[#111827] truncate">—</p>
+        </div>
+        <p id="hsc-cust-4-count" class="text-base font-bold text-[#111827] tabular-nums ml-3">—</p>
+      </div>
+      <!-- Row 5 -->
+      <div class="hsc-row flex items-center px-5 py-4 cursor-pointer hover:bg-[#F5F6F8] transition-colors" data-idx="4">
+        <div class="w-8 h-8 rounded-full bg-[#2563EB] bg-opacity-10 flex items-center justify-center flex-shrink-0 text-sm font-bold text-[#2563EB]">5</div>
+        <div class="ml-4 flex-1 min-w-0">
+          <p id="hsc-cust-5-name" class="text-sm font-medium text-[#111827] truncate">—</p>
+        </div>
+        <p id="hsc-cust-5-count" class="text-base font-bold text-[#111827] tabular-nums ml-3">—</p>
+      </div>
+    </div>
+    <!-- Doughnut Chart -->
+    <div class="bg-white rounded-lg border border-[#D8DDE6] p-5 flex flex-col lg:col-span-3">
+      <!-- Top: Site list (left) + Chart (right) -->
+      <div class="flex flex-1 gap-4 items-center">
+        <!-- Left: Site list -->
+        <div id="doughnut-site-list" class="flex-1 flex flex-col justify-center gap-2 overflow-hidden min-w-0">
+          <!-- Populated by JS -->
+        </div>
+        <!-- Right: Chart -->
+        <div class="flex-shrink-0" style="width: 220px; height: 220px;">
+          <canvas id="chart-doughnut"></canvas>
+        </div>
+      </div>
+      <!-- Bottom: Description right-aligned -->
+      <div class="mt-3 text-right">
+        <p class="text-xs text-[#4B5563]">หน่วยงานที่ไม่ได้ลงนาม</p>
+        <p id="doughnut-customer-name" class="text-sm font-bold text-[#111827]">ไซต์งาน: —</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- NEW KPI CARDS -->
+<div class="px-6 pt-3 pb-3">
+  <div class="grid grid-cols-2 gap-3">
+    <!-- Card 1: จำนวนใบลงนาม -->
+    <div class="bg-white rounded-lg p-4 border border-[#D8DDE6]">
+      <div class="flex items-center gap-2">
+        <svg class="w-5 h-5 text-[#2563EB]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+        </svg>
+        <p class="text-sm font-semibold text-[#4B5563] uppercase tracking-wide">จำนวนใบลงนาม</p>
+      </div>
+      <p id="kpi-dp-count" class="text-3xl font-bold text-[#111827] mt-1.5 tabular-nums">0</p>
+      <p class="text-xs text-[#4B5563] mt-1.5">ใบ</p>
+    </div>
+    <!-- Card 2: จำนวนวันที่ล้าช้า -->
+    <div class="bg-white rounded-lg p-4 border border-[#D8DDE6]">
+      <div class="flex items-center gap-2">
+        <svg class="w-5 h-5 text-[#B91C1C]" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+          <path d="M5 22h14"></path>
+          <path d="M5 2h14"></path>
+          <path d="M17 22v-4.172a2 2 0 0 0-.586-1.414L12 12l-4.414 4.414A2 2 0 0 0 7 17.828V22"></path>
+          <path d="M7 2v4.172a2 2 0 0 0 .586 1.414L12 12l4.414-4.414A2 2 0 0 0 17 6.172V2"></path>
+        </svg>
+        <p class="text-sm font-semibold text-[#4B5563] uppercase tracking-wide">จำนวนวันที่ล้าช้า</p>
+      </div>
+      <p id="kpi-delay-days" class="text-3xl font-bold text-[#111827] mt-1.5 tabular-nums">0</p>
+      <p class="text-xs text-[#4B5563] mt-1.5">วัน</p>
+    </div>
+  </div>
+</div>
+
+<!-- DETAIL TABLE -->
+<div class="px-6 pb-8">
+  <div class="bg-white rounded-lg border border-[#D8DDE6] overflow-hidden">
+    <div class="px-5 py-3 border-b border-[#D8DDE6] flex items-center justify-between">
+      <h2 class="text-sm font-semibold text-[#111827]">รายละเอียดราย DP</h2>
+      <div class="flex items-center gap-3">
+        <div class="relative">
+          <input id="detail-search" type="text" placeholder="ค้นหา DP, ลูกค้า, ไซต์งาน..." 
+            class="text-sm border border-[#DDE3EA] rounded-md px-3 py-1.5 pl-8 focus:outline-none focus:border-[#2563EB] w-72">
+          <svg class="w-4 h-4 text-[#4B5563] absolute left-2.5 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+          </svg>
+        </div>
+        <p id="detail-meta" class="text-xs text-[#4B5563]">0 รายการ</p>
+      </div>
+    </div>
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="bg-[#F5F6F8] text-xs border-b border-[#D8DDE6]">
+            <th class="text-left px-4 py-3 font-semibold text-[#4B5563] border-r border-[#D8DDE6]">DP No</th>
+            <th class="text-left px-4 py-3 font-semibold text-[#4B5563] border-r border-[#D8DDE6]">DP Date</th>
+            <th class="text-left px-4 py-3 font-semibold text-[#4B5563] border-r border-[#D8DDE6]">Division</th>
+            <th class="text-left px-4 py-3 font-semibold text-[#4B5563] border-r border-[#D8DDE6]">Dept</th>
+            <th class="text-left px-4 py-3 font-semibold text-[#4B5563] border-r border-[#D8DDE6]">Plant</th>
+            <th class="text-left px-4 py-3 font-semibold text-[#4B5563] border-r border-[#D8DDE6]">Customer</th>
+            <th class="text-left px-4 py-3 font-semibold text-[#4B5563] border-r border-[#D8DDE6]">Site</th>
+            <th class="text-left px-4 py-3 font-semibold text-[#4B5563] border-r border-[#D8DDE6]">Type</th>
+            <th class="text-right px-4 py-3 font-semibold text-[#4B5563] border-r border-[#D8DDE6]">คิว</th>
+            <th class="text-left px-4 py-3 font-semibold text-[#4B5563] border-r border-[#D8DDE6]">สถานะ</th>
+            <th class="text-right px-4 py-3 font-semibold text-[#4B5563]">วัน</th>
+          </tr>
+        </thead>
+        <tbody id="detail-table"></tbody>
+      </table>
+    </div>
+    <div class="px-5 py-3 border-t border-[#D8DDE6] flex items-center justify-between">
+      <p id="detail-page-info" class="text-xs text-[#4B5563]">หน้า 1/1</p>
+      <div class="flex items-center gap-2">
+        <button id="detail-prev" class="px-3 py-1.5 text-sm border border-[#D8DDE6] rounded-md bg-white text-[#374151] cursor-pointer hover:bg-[#F5F6F8]">ก่อนหน้า</button>
+        <button id="detail-next" class="px-3 py-1.5 text-sm border border-[#D8DDE6] rounded-md bg-white text-[#374151] cursor-pointer hover:bg-[#F5F6F8]">ถัดไป</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// Build the compact data shape used by this page from the selected monthly CSV file.
+window.loadCsvData = function(csvPaths) {
+  window.DP_DATA = { d: [], dv: [], de: [], se: [], pl: [], cu: [], si: [] };
+  const dayMs = 24 * 60 * 60 * 1000;
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  function parseCsv(text) {
+    const rows = [];
+    let row = [], field = '', inQuotes = false;
+    for (let i = 0; i < text.length; i++) {
+      const ch = text[i];
+      const next = text[i + 1];
+      if (ch === '"') {
+        if (inQuotes && next === '"') {
+          field += '"';
+          i++;
+        } else {
+          inQuotes = !inQuotes;
+        }
+      } else if (ch === ',' && !inQuotes) {
+        row.push(field);
+        field = '';
+      } else if ((ch === '\n' || ch === '\r') && !inQuotes) {
+        if (ch === '\r' && next === '\n') i++;
+        row.push(field);
+        if (row.some(v => v !== '')) rows.push(row);
+        row = [];
+        field = '';
+      } else {
+        field += ch;
+      }
+    }
+    row.push(field);
+    if (row.some(v => v !== '')) rows.push(row);
+    return rows;
+  }
+
+  function clean(value) {
+    return (value || '').trim().replace(/^\uFEFF/, '');
+  }
+
+  function parseDate(value) {
+    const v = clean(value).replace(/^'+|'+$/g, '');
+    if (!v) return null;
+    let m = v.match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if (m) return new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
+    m = v.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})/);
+    if (m) {
+      let year = Number(m[3]);
+      if (year < 100) year += 2000;
+      return new Date(year, Number(m[2]) - 1, Number(m[1]));
+    }
+    return null;
+  }
+
+  function diffDays(later, earlier) {
+    if (!later || !earlier) return null;
+    const a = new Date(later); a.setHours(0, 0, 0, 0);
+    const b = new Date(earlier); b.setHours(0, 0, 0, 0);
+    return Math.max(0, Math.round((a - b) / dayMs));
+  }
+
+  function weekOfMonth(date) {
+    if (!date) return null;
+    const d = date.getDate();
+    if (d <= 7) return 0;
+    if (d <= 14) return 1;
+    if (d <= 21) return 2;
+    return 3;
+  }
+
+  function monthKey(date) {
+    if (!date) return '';
+    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+  }
+
+  function makeIndex(list, value) {
+    const key = value || '';
+    let idx = list.index.get(key);
+    if (idx === undefined) {
+      idx = list.values.length;
+      list.values.push(key);
+      list.index.set(key, idx);
+    }
+    return idx;
+  }
+
+  function docGroup(docType) {
+    const t = clean(docType).toUpperCase();
+    if (t === 'SDA') return 0;
+    if (t === 'EDP') return 2;
+    return 1; // NoSign and DP_SCAN are Paper.
+  }
+
+  function parseNumber(value) {
+    const v = clean(value).replace(/,/g, '');
+    if (!v) return 0;
+    const n = Number(v);
+    return Number.isFinite(n) ? n : 0;
+  }
+
+  const dicts = {
+    dv: { values: [], index: new Map() },
+    de: { values: [], index: new Map() },
+    se: { values: [], index: new Map() },
+    pl: { values: [], index: new Map() },
+    cu: { values: [], index: new Map() },
+    si: { values: [], index: new Map() },
+  };
+  const siteNoMap = {};
+  const allData = [];
+
+  try {
+    csvPaths.forEach(csvPath => {
+      const req = new XMLHttpRequest();
+      req.open('GET', csvPath, false);
+      req.overrideMimeType('text/csv; charset=utf-8');
+      req.send(null);
+      if (req.status !== 0 && (req.status < 200 || req.status >= 300)) {
+        throw new Error(`Cannot load ${csvPath}: ${req.status}`);
+      }
+
+      const rows = parseCsv(req.responseText);
+      const fileHeaders = (rows.shift() || []).map(h => clean(h));
+      const col = Object.fromEntries(fileHeaders.map((h, i) => [h, i]));
+
+      rows.forEach(r => {
+        const docType = clean(r[col.doc_type]);
+        const dpDate = parseDate(r[col.dp_date]);
+        const uploadDate = parseDate(r[col.upload_date]);
+        const signedDays = docType.toUpperCase() === 'NOSIGN' ? null : diffDays(uploadDate, dpDate);
+        const unsignedDays = signedDays === null ? diffDays(today, dpDate) : null;
+        const dpWeek = weekOfMonth(dpDate);
+        const uploadWeek = weekOfMonth(uploadDate);
+        const reportDate = uploadDate || dpDate;
+        const siteName = clean(r[col.site_name]);
+        const siteNo = clean(r[col.site_no]);
+        if (siteName && siteNo && !siteNoMap[siteName]) {
+          siteNoMap[siteName] = siteNo;
+        }
+        allData.push([
+          makeIndex(dicts.dv, clean(r[col.division_name])),
+          makeIndex(dicts.de, clean(r[col.dept_name])),
+          makeIndex(dicts.se, clean(r[col.sect_name])),
+          makeIndex(dicts.pl, clean(r[col.plant_name])),
+          docGroup(docType),
+          makeIndex(dicts.cu, clean(r[col.customer_name])),
+          makeIndex(dicts.si, siteName),
+          parseNumber(r[col.dp_dispatch_qty]),
+          unsignedDays,
+          signedDays,
+          dpWeek,
+          uploadWeek,
+          monthKey(dpDate || reportDate),
+          clean(r[col.dp_no]),
+          clean(r[col.dp_date]),
+          clean(r[col.upload_date]),
+          docType,
+        ]);
+      });
+    });
+  } catch (error) {
+    console.error('Failed to load CSV data', error);
+    return;
+  }
+
+  window.DP_DATA = {
+    d: allData,
+    dv: dicts.dv.values,
+    de: dicts.de.values,
+    se: dicts.se.values,
+    pl: dicts.pl.values,
+    cu: dicts.cu.values,
+    si: dicts.si.values,
+    sn: siteNoMap,
+  };
+};
+// Initialise empty DP_DATA so the second script can reference it immediately.
+window.DP_DATA = window.DP_DATA || { d: [], dv: [], de: [], se: [], pl: [], cu: [], si: [] };
+</script>
+
+<script>
+// ─── Data ────────────────────────────────────────────────────────────────────
+// record layout: [div(0), dept(1), sect(2), plant(3), grp(4), cust(5), site(6), qty(7), du(8), ds(9), dpWeek(10), uploadWeek(11), month(12), dpNo(13), dpDateText(14), uploadDateText(15), docType(16)]
+// grp: 0=SDA, 1=Paper, 2=EDP
+let D  = DP_DATA.d;
+let DV = DP_DATA.dv, DE = DP_DATA.de, SE = DP_DATA.se;
+let PL = DP_DATA.pl, CU = DP_DATA.cu, SI = DP_DATA.si;
+let SN = DP_DATA.sn || {};
+const [FDV,FDE,FSE,FPL,FGR,FCU,FSI,FQTY,FDU,FDS,FDPW,FUPW,FMON,FDPNO,FDPDATE,FUPLOADDATE,FDOC] = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16];
+
+function refreshData() {
+  D  = DP_DATA.d;
+  DV = DP_DATA.dv; DE = DP_DATA.de; SE = DP_DATA.se;
+  PL = DP_DATA.pl; CU = DP_DATA.cu; SI = DP_DATA.si;
+  SN = DP_DATA.sn || {};
+}
+
+// ─── State ───────────────────────────────────────────────────────────────────
+const DEFAULT_DIVISION = 'CPAC Metro';
+const DEFAULT_MONTH = new Date().toISOString().slice(0, 7);
+const state = { div:'', dept:'', sect:'', plant:'', cust:'', site:'', grp:'all', month: DEFAULT_MONTH, detailSearch: '', dateFrom: '', dateTo: '' };
+let chartU = null, chartS = null, chartDoughnut = null;
+let detailPage = 1;
+const DETAIL_PAGE_SIZE = 100;
+const expandedDivisions = new Set();
+const expandedDepts = new Set();
+const expandedSects = new Set();
+const COLLAPSIBLE_DIVISIONS = [
+  'CPAC Metro',
+  'CPAC East',
+  'CPAC Northeast',
+  'RMC - South Chain',
+  'CPAC North',
+  'CPAC West'
+];
+
+// ─── Precomputed cascade maps ─────────────────────────────────────────────────
+const divDepts = {};       // divName → Set(deptName)
+const divDeptSects = {};   // "div||dept" → Set(sectName)
+const divDeptSectPlants={}; // "div||dept||sect" → Set(plantName)
+const allDivs = new Set(), allCusts = new Set(), allSites = new Set();
+
+function precompute() {
+  D.forEach(r => {
+    const dv = DV[r[FDV]], de = DE[r[FDE]], se = SE[r[FSE]], pl = PL[r[FPL]];
+    allDivs.add(dv); allCusts.add(CU[r[FCU]]); allSites.add(SI[r[FSI]]);
+    if (!divDepts[dv]) divDepts[dv] = new Set();
+    divDepts[dv].add(de);
+    const k1 = dv+'||'+de;
+    if (!divDeptSects[k1]) divDeptSects[k1] = new Set();
+    divDeptSects[k1].add(se);
+    const k2 = k1+'||'+se;
+    if (!divDeptSectPlants[k2]) divDeptSectPlants[k2] = new Set();
+    divDeptSectPlants[k2].add(pl);
+  });
+}
+
+// ─── Populate helpers ─────────────────────────────────────────────────────────
+function populateSelect(id, values, placeholder) {
+  const sel = document.getElementById(id);
+  sel.innerHTML = `<option value="">${placeholder}</option>`;
+  [...values].sort((a,b) => (a||'').localeCompare(b||'','th')).forEach(v => {
+    const o = document.createElement('option');
+    o.value = o.text = v||'';
+    sel.appendChild(o);
+  });
+}
+
+function initFilters() {
+  precompute();
+  populateSelect('f-div',  allDivs,  'ทุก กิจการ');
+  populateSelect('f-cust', allCusts, 'ทุก ลูกค้า');
+  const fs = document.getElementById('f-site');
+  fs.innerHTML = '<option value="">ทุก ไซต์งาน</option>';
+  [...allSites].slice(0,2000).forEach(s => {
+    const o = document.createElement('option');
+    o.value = s;
+    o.text = (SN[s] ? SN[s] + ' - ' : '') + s;
+    fs.appendChild(o);
+  });
+  refreshDeptOptions();
+  refreshSectOptions();
+  refreshPlantOptions();
+}
+
+function refreshDeptOptions() {
+  let depts;
+  if (state.div) {
+    depts = divDepts[state.div] || new Set();
+  } else {
+    depts = new Set(Object.values(divDepts).flatMap(s => [...s]));
+  }
+  populateSelect('f-dept', depts, 'ทุก ภาค');
+}
+
+function refreshSectOptions() {
+  let sects;
+  if (state.div && state.dept) {
+    sects = divDeptSects[state.div+'||'+state.dept] || new Set();
+  } else if (state.div) {
+    sects = new Set(
+      Object.entries(divDeptSects)
+        .filter(([k]) => k.startsWith(state.div+'||'))
+        .flatMap(([,v]) => [...v])
+    );
+  } else if (state.dept) {
+    sects = new Set(
+      Object.entries(divDeptSects)
+        .filter(([k]) => k.split('||')[1] === state.dept)
+        .flatMap(([,v]) => [...v])
+    );
+  } else {
+    sects = new Set(Object.values(divDeptSects).flatMap(s => [...s]));
+  }
+  populateSelect('f-sect', sects, 'ทุก แผนก');
+}
+
+function refreshPlantOptions() {
+  let plants;
+  if (state.div && state.dept && state.sect) {
+    plants = divDeptSectPlants[state.div+'||'+state.dept+'||'+state.sect] || new Set();
+  } else {
+    const prefix = [state.div, state.dept, state.sect].filter(Boolean);
+    plants = new Set(
+      Object.entries(divDeptSectPlants)
+        .filter(([k]) => {
+          const parts = k.split('||');
+          if (state.div  && parts[0] !== state.div)  return false;
+          if (state.dept && parts[1] !== state.dept) return false;
+          if (state.sect && parts[2] !== state.sect) return false;
+          return true;
+        })
+        .flatMap(([,v]) => [...v])
+    );
+  }
+  populateSelect('f-plant', plants, 'ทุก โรงงาน');
+}
+
+// ─── Filter ─────────────────────────────────────────────────────────────────--
+function parseDateFilter(value) {
+  if (!value) return null;
+  const v = String(value).trim();
+  let m = v.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (m) {
+    let yyyy = m[1];
+    if (parseInt(yyyy) > 2400) yyyy = String(parseInt(yyyy) - 543);
+    return `${yyyy}-${m[2]}-${m[3]}`;
+  }
+  m = v.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})/);
+  if (m) {
+    const dd = m[1].padStart(2, '0');
+    const mm = m[2].padStart(2, '0');
+    let yyyy = m[3];
+    if (yyyy.length === 2) yyyy = '20' + yyyy;
+    if (parseInt(yyyy) > 2400) yyyy = String(parseInt(yyyy) - 543);
+    return `${yyyy}-${mm}-${dd}`;
+  }
+  return null;
+}
+
+function getFiltered() {
+  const { div, dept, sect, plant, cust, site, grp, month, dateFrom, dateTo } = state;
+  const fromDate = parseDateFilter(dateFrom);
+  const toDate = parseDateFilter(dateTo);
+  return D.filter(r => {
+    if (div   && DV[r[FDV]] !== div)   return false;
+    if (dept  && DE[r[FDE]] !== dept)  return false;
+    if (sect  && SE[r[FSE]] !== sect)  return false;
+    if (plant && PL[r[FPL]] !== plant) return false;
+    if (cust  && CU[r[FCU]] !== cust)  return false;
+    if (site  && SI[r[FSI]] !== site)  return false;
+    if (grp === 'sda'   && r[FGR] !== 0) return false;
+    if (grp === 'paper' && r[FGR] !== 1) return false;
+    if (grp === 'edp'   && r[FGR] !== 2) return false;
+    if (month && r[FMON] !== month) return false;
+    if (fromDate || toDate) {
+      const dpDate = parseDateFilter(r[FDPDATE]);
+      if (!dpDate) return false;
+      if (fromDate && dpDate < fromDate) return false;
+      if (toDate && dpDate > toDate) return false;
+    }
+    return true;
+  });
+}
+
+// ─── Buckets ─────────────────────────────────────────────────────────────────
+const U_BUCKETS = [[0,7],[8,14],[15,21],[22,30],[31,45],[46,60],[61,9999]];
+const U_LABELS  = ['≤7 วัน','8-14 วัน','15-21 วัน','22-30 วัน','31-45 วัน','46-60 วัน','>60 วัน'];
+const S_BUCKETS = [[0,0],[1,1],[2,3],[4,7],[8,14],[15,30],[31,9999]];
+const S_LABELS  = ['วันเดียวกัน','1 วัน','2-3 วัน','4-7 วัน','8-14 วัน','15-30 วัน','>30 วัน'];
+
+function getBucket(val, buckets) {
+  for (let i = 0; i < buckets.length; i++)
+    if (val >= buckets[i][0] && val <= buckets[i][1]) return i;
+  return buckets.length - 1;
+}
+
+function fmt(n) {
+  if (n === null || n === undefined || (typeof n === 'number' && isNaN(n))) return '—';
+  return Math.round(n).toLocaleString('th-TH');
+}
+
+// ─── Main update ──────────────────────────────────────────────────────────────
+function fmtQty(n) {
+  if (n === null || n === undefined || (typeof n === 'number' && isNaN(n))) return 'โ€”';
+  return Number(n).toLocaleString('th-TH', {
+    minimumFractionDigits: Number.isInteger(n) ? 0 : 1,
+    maximumFractionDigits: 1
+  });
+}
+
+function fmtRowsWithQty(rows, qty) {
+  return `${fmt(rows)} (${fmtQty(qty)} คิว)`;
+}
+
+function fmtRowsWithQtyHtml(rows, qty, mutedClass) {
+  return `<span class="block">${fmt(rows)}</span><span class="block text-sm font-medium mt-1 ${mutedClass}">${fmtQty(qty)} คิว</span>`;
+}
+
+function updateTerminology() {
+  const isPaper = state.grp === 'paper';
+  const text = isPaper
+    ? {
+        kpiUnsignedTitle: '⚠ ยังไม่สแกน',
+        kpiSignedTitle: '✓ สแกนแล้ว',
+        kpiAvgDaysTitle: 'เฉลี่ยวันสแกน',
+        kpiAvgDaysDesc: 'วัน (scan_date - dp_date)',
+        chartUnsignedTitle: 'DP ยังไม่ได้สแกน',
+        chartUnsignedDesc: 'จำนวนวันนับจากออก DP จนถึงวันนี้ (7 พ.ค. 2569)',
+        chartSignedTitle: 'DP ที่สแกนแล้ว',
+        chartSignedDesc: 'จำนวนวัน (scan_date - dp_date) ตั้งแต่ออก DP จนเอกสารถูกสแกน',
+        tableSort: 'เรียงตามยังไม่สแกน มาก→น้อย',
+        thUnsigned: 'ยังไม่สแกน',
+        thSigned: 'สแกนแล้ว',
+        thSignedPct: '% สแกน',
+      }
+    : {
+        kpiUnsignedTitle: '⚠ ยังไม่ลงนาม',
+        kpiSignedTitle: '✓ ลงนามแล้ว',
+        kpiAvgDaysTitle: 'เฉลี่ยวันลงนาม',
+        kpiAvgDaysDesc: 'วัน (signed - dp_date)',
+        chartUnsignedTitle: 'DP ยังไม่ได้ลงนาม',
+        chartUnsignedDesc: 'จำนวนวันนับจากออก DP จนถึงวันนี้ (7 พ.ค. 2569)',
+        chartSignedTitle: 'DP ที่ลงนามแล้ว',
+        chartSignedDesc: 'จำนวนวัน (signed_date - dp_date) ตั้งแต่ออก DP จนลูกค้าเซ็น',
+        tableSort: 'เรียงตามยังไม่ลงนาม มาก→น้อย',
+        thUnsigned: 'ยังไม่ลงนาม',
+        thSigned: 'ลงนามแล้ว',
+        thSignedPct: '% ลงนาม',
+      };
+
+  document.getElementById('label-kpi-unsigned-title').textContent = text.kpiUnsignedTitle;
+  document.getElementById('label-kpi-signed-title').textContent = text.kpiSignedTitle;
+  document.getElementById('label-kpi-avgdays-title').textContent = text.kpiAvgDaysTitle;
+  document.getElementById('label-kpi-avgdays-desc').textContent = text.kpiAvgDaysDesc;
+  document.getElementById('label-chart-unsigned-title').textContent = text.chartUnsignedTitle;
+  document.getElementById('label-chart-unsigned-desc').textContent = text.chartUnsignedDesc;
+  document.getElementById('label-chart-signed-title').textContent = text.chartSignedTitle;
+  document.getElementById('label-chart-signed-desc').textContent = text.chartSignedDesc;
+  document.getElementById('label-table-sort').textContent = text.tableSort;
+  document.getElementById('label-th-unsigned').textContent = text.thUnsigned;
+  document.getElementById('label-th-signed').textContent = text.thSigned;
+  document.getElementById('label-th-signed-pct').textContent = text.thSignedPct;
+}
+
+function updateKpiCards(data) {
+  let filtered = data.filter(r => r[FDOC] === 'NoSign' && (r[FDS] === null || r[FDS] === undefined));
+  if (window._kpiSelectedCust) {
+    filtered = filtered.filter(r => CU[r[FCU]] === window._kpiSelectedCust);
+  }
+  if (window._kpiSelectedSite) {
+    filtered = filtered.filter(r => SI[r[FSI]] === window._kpiSelectedSite);
+  }
+  const count = filtered.length;
+  const maxDays = filtered.length ? Math.max(...filtered.map(r => r[FDU] || 0)) : 0;
+  document.getElementById('kpi-dp-count').textContent = fmt(count);
+  document.getElementById('kpi-delay-days').textContent = filtered.length ? maxDays : '—';
+}
+
+function updateAll() {
+  const data     = getFiltered();
+  detailPage = 1;
+  const unsigned = data.filter(r => r[FDS] === null || r[FDS] === undefined);
+  const signed   = data.filter(r => r[FDS] !== null && r[FDS] !== undefined);
+  const sumQty = list => list.reduce((sum, r) => sum + (Number(r[FQTY]) || 0), 0);
+  const nSDA     = sumQty(data.filter(r => r[FGR] === 0));
+  const nPaper   = sumQty(data.filter(r => r[FGR] === 1));
+  const nEDP     = sumQty(data.filter(r => r[FGR] === 2));
+  const total    = sumQty(data);
+  const unsignedQty = sumQty(unsigned);
+  const signedQty = sumQty(signed);
+
+  // KPIs
+  document.getElementById('kpi-total').innerHTML          = fmtRowsWithQtyHtml(data.length, total, 'text-[#4B5563]');
+  document.getElementById('kpi-n-sda').textContent        = `SDA: ${fmtRowsWithQty(data.filter(r => r[FGR] === 0).length, nSDA)}`;
+  document.getElementById('kpi-n-paper').textContent      = `Paper: ${fmtRowsWithQty(data.filter(r => r[FGR] === 1).length, nPaper)}`;
+  document.getElementById('kpi-n-edp').textContent        = `EDP: ${fmtRowsWithQty(data.filter(r => r[FGR] === 2).length, nEDP)}`;
+  document.getElementById('kpi-unsigned').innerHTML       = fmtRowsWithQtyHtml(unsigned.length, unsignedQty, 'text-red-400');
+  document.getElementById('kpi-unsigned-pct').textContent = total ? `${(unsigned.length/total*100).toFixed(1)}%` : '—%';
+  document.getElementById('kpi-signed').innerHTML         = fmtRowsWithQtyHtml(signed.length, signedQty, 'text-green-400');
+  document.getElementById('kpi-signed-pct').textContent   = total ? `${(signed.length/total*100).toFixed(1)}%` : '—%';
+
+  const avgDs = signed.length
+    ? (signed.reduce((s,r) => s + r[FDS], 0) / signed.length).toFixed(1) : '—';
+  const avgDu = unsigned.length
+    ? (unsigned.reduce((s,r) => s + (r[FDU]||0), 0) / unsigned.length).toFixed(1) : '—';
+
+  document.getElementById('kpi-avgdays').textContent    = avgDs;
+  document.getElementById('kpi-avg-unsigned').textContent = `เฉลี่ย ${avgDu} วัน`;
+
+  // Horizontal Summary Card — Top 3 NoSign customers (ยังไม่สแกน)
+  const noSignData = data.filter(r => r[FDOC] === 'NoSign' && (r[FDS] === null || r[FDS] === undefined));
+  const custCounts = {};
+  noSignData.forEach(r => {
+    const cust = CU[r[FCU]] || 'ไม่ระบุ';
+    custCounts[cust] = (custCounts[cust] || 0) + 1;
+  });
+  const top3 = Object.entries(custCounts).sort((a, b) => b[1] - a[1]).slice(0, 5);
+  window._topNoSignCustomers = top3;
+  for (let i = 0; i < 5; i++) {
+    const rowEl = document.querySelector(`.hsc-row[data-idx="${i}"]`);
+    const nameEl = document.getElementById(`hsc-cust-${i+1}-name`);
+    const countEl = document.getElementById(`hsc-cust-${i+1}-count`);
+    if (top3[i]) {
+      nameEl.textContent = top3[i][0];
+      countEl.textContent = fmt(top3[i][1]);
+      if (rowEl) rowEl.dataset.customer = top3[i][0];
+    } else {
+      nameEl.textContent = '—';
+      countEl.textContent = '—';
+      if (rowEl) rowEl.dataset.customer = '';
+    }
+  }
+  // Auto-select first customer for doughnut
+  if (top3.length > 0) renderDoughnut(top3[0][0]);
+
+  // New KPIs: จำนวนใบลงนาม + จำนวนวันที่ล้าช้า (NoSign + unsigned only)
+  updateKpiCards(data);
+
+  document.getElementById('unsigned-count-badge').textContent = `${fmt(unsigned.length)} รายการ`;
+  document.getElementById('signed-count-badge').textContent   = `${fmt(signed.length)} รายการ`;
+
+  updateTerminology();
+  renderCharts(unsigned, signed);
+  renderTable(data);
+  const detailData = filterDetailData(data);
+  renderDetailTable(detailData);
+}
+
+// ─── Charts ───────────────────────────────────────────────────────────────────
+function buildBuckets(records, fi, buckets) {
+  const sda = new Array(buckets.length).fill(0);
+  const paper = new Array(buckets.length).fill(0);
+  const edp  = new Array(buckets.length).fill(0);
+  records.forEach(r => {
+    const v = r[fi];
+    if (v === null || v === undefined) return;
+    const b = getBucket(v, buckets);
+    if      (r[FGR] === 0) sda[b]++;
+    else if (r[FGR] === 1) paper[b]++;
+    else                   edp[b]++;
+  });
+  return { sda, paper, edp };
+}
+
+const BAR_VALUE_LABELS = {
+  id: 'barValueLabels',
+  afterDatasetsDraw(chart) {
+    const { ctx } = chart;
+    ctx.save();
+    ctx.font = 'bold 11px Sarabun, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+
+    chart.data.datasets.forEach((dataset, datasetIndex) => {
+      const meta = chart.getDatasetMeta(datasetIndex);
+      if (!meta || meta.hidden) return;
+
+      meta.data.forEach((bar, index) => {
+        const value = Number(dataset.data[index] || 0);
+        if (!value) return;
+
+        const props = bar.getProps(['x', 'y', 'base'], true);
+        const height = Math.abs(props.base - props.y);
+        if (height < 18) return;
+
+        ctx.fillStyle = '#ffffff';
+        ctx.fillText(value.toLocaleString('th-TH'), props.x, props.y + height / 2);
+      });
+    });
+
+    ctx.restore();
+  }
+};
+
+const CHART_OPTS = {
+  responsive: true,
+  maintainAspectRatio: true,
+  interaction: { mode:'index', intersect:false },
+  plugins: {
+    legend: { position:'top', labels:{ font:{family:'Sarabun',size:12}, boxWidth:12, padding:10, color:'#4B5563' } },
+    tooltip: {
+      callbacks: {
+        footer: items => `รวม: ${items.reduce((s,i)=>s+i.raw,0).toLocaleString('th-TH')} รายการ`
+      }
+    }
+  },
+  scales: {
+    x: { stacked:true, grid:{display:false}, ticks:{font:{family:'Sarabun',size:11}} },
+    y: { stacked:true, beginAtZero:true, grid:{color:'#f1f5f9'},
+         ticks:{font:{family:'Sarabun',size:11}, callback: v => v>=1000?(v/1000).toFixed(0)+'k':v} }
+  }
+};
+
+function renderDoughnut(customerName) {
+  // Build site counts for this customer (NoSign + ยังไม่สแกน)
+  let siteCounts = {};
+  if (customerName) {
+    const filtered = getFiltered();
+    const custData = filtered.filter(r =>
+      r[FDOC] === 'NoSign' &&
+      (r[FDS] === null || r[FDS] === undefined) &&
+      (CU[r[FCU]] || '') === customerName
+    );
+    custData.forEach(r => {
+      const site = SI[r[FSI]] || 'ไม่ระบุ';
+      siteCounts[site] = (siteCounts[site] || 0) + 1;
+    });
+  }
+  const entries = Object.entries(siteCounts).sort((a, b) => b[1] - a[1]).slice(0, 10);
+  const labels = entries.map(e => e[0]);
+  const values = entries.map(e => e[1]);
+  const bgColors = [
+    '#DC2626', '#F97316', '#F59E0B', '#EAB308', '#FACC15',  // 1-5 แดง→ส้ม→เหลือง
+    '#1E40AF', '#2563EB', '#3B82F6', '#60A5FA', '#93C5FD', '#BFDBFE'  // 6+ ฟ้า→ฟ้าอ่อน
+  ];
+
+  // Update site list (left side)
+  const listEl = document.getElementById('doughnut-site-list');
+  const custTitle = document.getElementById('doughnut-customer-name');
+  if (custTitle) custTitle.textContent = customerName ? `ไซต์งาน: ${customerName}` : 'ไซต์งาน: —';
+
+  if (entries.length && listEl) {
+    listEl.innerHTML = entries.map((e, i) => {
+      const color = bgColors[Math.min(i, bgColors.length - 1)];
+      return `<div class="site-row flex items-center gap-2 cursor-pointer hover:bg-[#F5F6F8] rounded-md px-1 py-0.5 transition-colors" data-site="${e[0].replace(/"/g, '&quot;')}">
+        <span class="w-3 h-3 rounded-full flex-shrink-0" style="background-color:${color}"></span>
+        <span class="text-sm text-[#374151] break-words leading-tight flex-1">${e[0]}</span>
+        <span class="text-sm font-bold text-[#111827] tabular-nums">${fmt(e[1])}</span>
+      </div>`;
+    }).join('');
+    // Click to search in Detail Table
+    listEl.querySelectorAll('.site-row').forEach(row => {
+      row.addEventListener('click', () => {
+        const siteName = row.dataset.site;
+        window._kpiSelectedSite = siteName;
+        // Update KPI cards only (do not refresh doughnut/summary)
+        updateKpiCards(getFiltered());
+        // Update detail table search (do not scroll, do not refresh doughnut)
+        state.cust = '';
+        state.site = '';
+        document.getElementById('f-cust').value = '';
+        document.getElementById('f-site').value = '';
+        document.getElementById('detail-search').value = siteName;
+        state.detailSearch = siteName;
+        detailPage = 1;
+        renderDetailTable(filterDetailData(getFiltered()));
+      });
+    });
+  } else if (listEl) {
+    listEl.innerHTML = '<p class="text-sm text-[#4B5563]">ไม่มีข้อมูล</p>';
+  }
+
+  if (chartDoughnut) chartDoughnut.destroy();
+  chartDoughnut = new Chart(document.getElementById('chart-doughnut'), {
+    type: 'doughnut',
+    data: {
+      labels: labels.length ? labels : ['ไม่มีข้อมูล'],
+      datasets: [{
+        data: values.length ? values : [1],
+        backgroundColor: labels.length ? labels.map((_, i) => bgColors[Math.min(i, bgColors.length - 1)]) : ['#cbd5e1'],
+        borderWidth: 0,
+        hoverOffset: 4
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      cutout: '45%',
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: item => ` ${item.label}: ${fmt(item.raw)} รายการ`
+          }
+        }
+      }
+    }
+  });
+}
+
+function renderCharts(unsigned, signed) {
+  const uB = buildBuckets(unsigned, FDU, U_BUCKETS);
+  const sB = buildBuckets(signed,   FDS, S_BUCKETS);
+
+  const mkDatasets = (b) => [
+    { label:'SDA',   data:b.sda,   backgroundColor:'#2563EB', borderRadius:3, stack:'a' },
+    { label:'Paper', data:b.paper, backgroundColor:'#D97706', borderRadius:3, stack:'a' },
+    { label:'EDP',   data:b.edp,   backgroundColor:'#059669', borderRadius:3, stack:'a' },
+  ];
+
+  if (chartU) chartU.destroy();
+  chartU = new Chart(document.getElementById('chart-unsigned'), {
+    type:'bar',
+    data:{ labels:U_LABELS, datasets:mkDatasets(uB) },
+    options:CHART_OPTS,
+    plugins:[BAR_VALUE_LABELS]
+  });
+
+  if (chartS) chartS.destroy();
+  chartS = new Chart(document.getElementById('chart-signed'), {
+    type:'bar',
+    data:{ labels:S_LABELS, datasets:mkDatasets(sB) },
+    options:CHART_OPTS,
+    plugins:[BAR_VALUE_LABELS]
+  });
+}
+
+// ─── Summary Table ────────────────────────────────────────────────────────────
+function renderTable(data) {
+  let groupFn, lvl;
+  if (!state.div)   { groupFn = r => DV[r[FDV]]; lvl = 'Division'; }
+  else if (!state.dept) { groupFn = r => DE[r[FDE]]; lvl = 'Department'; }
+  else if (!state.sect) { groupFn = r => SE[r[FSE]]; lvl = 'Section'; }
+  else              { groupFn = r => PL[r[FPL]]; lvl = 'Plant'; }
+  document.getElementById('table-level').textContent = lvl;
+
+  const groups = {};
+  data.forEach(r => {
+    const k = groupFn(r) || '(ไม่ระบุ)';
+    if (!groups[k]) groups[k] = { total:0, unSDA:0, unPaper:0, unEDP:0, signed:0, dsSum:0 };
+    const g = groups[k];
+    g.total++;
+    if (r[FDS] === null || r[FDS] === undefined) {
+      if      (r[FGR] === 0) g.unSDA++;
+      else if (r[FGR] === 1) g.unPaper++;
+      else                   g.unEDP++;
+    } else {
+      g.signed++;
+      g.dsSum += r[FDS];
+    }
+  });
+
+  const rows = Object.entries(groups)
+    .sort((a,b) => (b[1].unSDA+b[1].unPaper+b[1].unEDP) - (a[1].unSDA+a[1].unPaper+a[1].unEDP));
+
+  const bar = p => {
+    const col = p>=80 ? 'bg-[#047857] text-[#047857]' : p>=50 ? 'bg-[#B45309] text-[#B45309]' : 'bg-[#B91C1C] text-[#B91C1C]';
+    const [bg, tc] = col.split(' ');
+    return `<div class="flex items-center gap-1.5 justify-end">
+      <div class="w-14 h-1.5 bg-[#F5F6F8] rounded-full overflow-hidden">
+        <div class="h-full rounded-full ${bg}" style="width:${Math.min(p,100).toFixed(0)}%"></div>
+      </div>
+      <span class="font-semibold ${tc} tabular-nums w-12 text-right">${p.toFixed(1)}%</span>
+    </div>`;
+  };
+
+  document.getElementById('summary-table').innerHTML = rows.map(([name, g]) => {
+    const unsigned = g.unSDA + g.unPaper + g.unEDP;
+    const pct = g.total > 0 ? g.signed / g.total * 100 : 0;
+    const avg = g.signed > 0 ? (g.dsSum / g.signed).toFixed(1) : '—';
+    return `<tr class="border-b border-[#D8DDE6]">
+      <td class="px-4 py-2.5 font-medium text-[#111827] max-w-xs truncate" title="${name}">${name}</td>
+      <td class="px-4 py-2.5 text-right text-[#374151] tabular-nums">${fmt(g.total)}</td>
+      <td class="px-4 py-2.5 text-right tabular-nums font-bold text-[#B91C1C]">${fmt(unsigned)}</td>
+      <td class="px-4 py-2.5 text-right text-[#2563EB] tabular-nums">${fmt(g.unSDA)}</td>
+      <td class="px-4 py-2.5 text-right text-[#B45309] tabular-nums">${fmt(g.unPaper)}</td>
+      <td class="px-4 py-2.5 text-right text-[#047857] tabular-nums">${fmt(g.unEDP)}</td>
+      <td class="px-4 py-2.5 text-right text-[#047857] tabular-nums">${fmt(g.signed)}</td>
+      <td class="px-4 py-2.5">${bar(pct)}</td>
+      <td class="px-4 py-2.5 text-right text-[#2563EB] tabular-nums font-medium">${avg}</td>
+    </tr>`;
+  }).join('');
+}
+
+function toggleSummaryDivision(name) {
+  if (expandedDivisions.has(name)) expandedDivisions.delete(name);
+  else expandedDivisions.add(name);
+  renderTable(getFiltered());
+}
+
+function toggleSummaryDept(key) {
+  if (expandedDepts.has(key)) expandedDepts.delete(key);
+  else expandedDepts.add(key);
+  renderTable(getFiltered());
+}
+
+function toggleSummarySect(key) {
+  if (expandedSects.has(key)) expandedSects.delete(key);
+  else expandedSects.add(key);
+  renderTable(getFiltered());
+}
+
+function renderTable(data) {
+  let groupFn, lvl;
+  if (!state.div)   { groupFn = r => DV[r[FDV]]; lvl = 'Division'; }
+  else if (!state.dept) { groupFn = r => DE[r[FDE]]; lvl = 'Department'; }
+  else if (!state.sect) { groupFn = r => SE[r[FSE]]; lvl = 'Section'; }
+  else              { groupFn = r => PL[r[FPL]]; lvl = 'Plant'; }
+  document.getElementById('table-level').textContent = lvl;
+
+  const blankLabel = '(ไม่ระบุ)';
+  const emptyGroup = () => ({ total:0, unSDA:0, unPaper:0, unEDP:0, signed:0, dsSum:0 });
+  const addRecord = (g, r) => {
+    g.total++;
+    if (r[FDS] === null || r[FDS] === undefined) {
+      if      (r[FGR] === 0) g.unSDA++;
+      else if (r[FGR] === 1) g.unPaper++;
+      else                   g.unEDP++;
+    } else {
+      g.signed++;
+      g.dsSum += r[FDS];
+    }
+  };
+  const aggregateBy = keyFn => {
+    const groups = {};
+    data.forEach(r => {
+      const k = keyFn(r) || blankLabel;
+      if (!groups[k]) groups[k] = emptyGroup();
+      addRecord(groups[k], r);
+    });
+    return groups;
+  };
+  const unsignedCount = g => g.unSDA + g.unPaper + g.unEDP;
+  const sortGroups = entries => entries.sort((a,b) => unsignedCount(b[1]) - unsignedCount(a[1]));
+  const sortDeptEntries = entries => entries.sort(([a], [b]) => a.localeCompare(b, undefined, { numeric:true, sensitivity:'base' }));
+  const escAttr = value => String(value).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+
+  const bar = p => {
+    const col = p>=80 ? 'bg-[#047857] text-[#047857]' : p>=50 ? 'bg-[#B45309] text-[#B45309]' : 'bg-[#B91C1C] text-[#B91C1C]';
+    const [bg, tc] = col.split(' ');
+    return `<div class="flex items-center gap-1.5 justify-end">
+      <div class="w-14 h-1.5 bg-[#F5F6F8] rounded-full overflow-hidden">
+        <div class="h-full rounded-full ${bg}" style="width:${Math.min(p,100).toFixed(0)}%"></div>
+      </div>
+      <span class="font-semibold ${tc} tabular-nums w-12 text-right">${p.toFixed(1)}%</span>
+    </div>`;
+  };
+
+  const rowHtml = (g, nameCell, rowClass = 'border-b border-[#D8DDE6] bg-white', isDark = false) => {
+    const unsigned = unsignedCount(g);
+    const pct = g.total > 0 ? g.signed / g.total * 100 : 0;
+    const avg = g.signed > 0 ? (g.dsSum / g.signed).toFixed(1) : '-';
+    const bgStyle = isDark ? ' style="background-color:#F5F6F8"' : '';
+    return `<tr class="${rowClass}"${bgStyle}>
+      ${nameCell}
+      <td class="px-4 py-2.5 text-right text-[#374151] tabular-nums border-r border-[#D8DDE6]">${fmt(g.total)}</td>
+      <td class="px-4 py-2.5 text-right tabular-nums font-bold text-[#B91C1C] border-r border-[#D8DDE6]">${fmt(unsigned)}</td>
+      <td class="px-4 py-2.5 text-right text-[#2563EB] tabular-nums border-r border-[#D8DDE6]">${fmt(g.unSDA)}</td>
+      <td class="px-4 py-2.5 text-right text-[#B45309] tabular-nums border-r border-[#D8DDE6]">${fmt(g.unPaper)}</td>
+      <td class="px-4 py-2.5 text-right text-[#047857] tabular-nums border-r border-[#D8DDE6]">${fmt(g.unEDP)}</td>
+      <td class="px-4 py-2.5 text-right text-[#047857] tabular-nums border-r border-[#D8DDE6]">${fmt(g.signed)}</td>
+      <td class="px-4 py-2.5 border-r border-[#D8DDE6]">${bar(pct)}</td>
+      <td class="px-4 py-2.5 text-right text-[#2563EB] tabular-nums font-medium">${avg}</td>
+    </tr>`;
+  };
+
+  if (!state.div) {
+    const divisionGroups = aggregateBy(r => DV[r[FDV]]);
+    const orderedDivisions = COLLAPSIBLE_DIVISIONS
+      .filter(name => divisionGroups[name])
+      .map(name => [name, divisionGroups[name]])
+      .concat(sortGroups(Object.entries(divisionGroups).filter(([name]) => !COLLAPSIBLE_DIVISIONS.includes(name))));
+
+    document.getElementById('summary-table').innerHTML = orderedDivisions.map(([name, g]) => {
+      const isDivOpen = expandedDivisions.has(name);
+      const divIcon = isDivOpen ? '&#9662;' : '&#9656;';
+      const deptGroups = aggregateBy(r => DV[r[FDV]] === name ? DE[r[FDE]] : '');
+      delete deptGroups[blankLabel];
+      const deptEntries = sortDeptEntries(Object.entries(deptGroups));
+      const hasExpandedDeptInDiv = deptEntries.some(([deptName]) => expandedDepts.has(name + '||' + deptName));
+
+      const deptRows = isDivOpen ? deptEntries.map(([deptName, deptGroup]) => {
+        const deptKey = name + '||' + deptName;
+        const isDeptOpen = expandedDepts.has(deptKey);
+        const deptIcon = isDeptOpen ? '&#9662;' : '&#9656;';
+        const deptNameClass = 'font-normal';
+
+        const sectGroups = aggregateBy(r => DV[r[FDV]] === name && DE[r[FDE]] === deptName ? SE[r[FSE]] : '');
+        delete sectGroups[blankLabel];
+        const sectEntries = [...Object.entries(sectGroups)].sort((a, b) => (a[0] || '').localeCompare(b[0] || '', 'th'));
+        const hasExpandedSectInDept = sectEntries.some(([sectName]) => expandedSects.has(deptKey + '||' + sectName));
+
+        const sectRows = isDeptOpen ? sectEntries.map(([sectName, sectGroup]) => {
+          const sectKey = deptKey + '||' + sectName;
+          const isSectOpen = expandedSects.has(sectKey);
+          const sectIcon = isSectOpen ? '&#9662;' : '&#9656;';
+          const sectNameClass = 'font-normal';
+
+          const plantGroups = aggregateBy(r => DV[r[FDV]] === name && DE[r[FDE]] === deptName && SE[r[FSE]] === sectName ? PL[r[FPL]] : '');
+          delete plantGroups[blankLabel];
+          const plantEntries = [...Object.entries(plantGroups)].sort((a, b) => (a[0] || '').localeCompare(b[0] || '', 'th'));
+
+          const plantRows = isSectOpen ? plantEntries.map(([plantName, plantGroup]) => {
+            return rowHtml(
+              plantGroup,
+              `<td class="px-4 py-2.5 text-[#374151] max-w-xs truncate" title="${escAttr(plantName)}">
+                <span class="inline-block w-24"></span><span class="text-[#4B5563]">โรงงาน</span>
+                <span class="font-normal ml-1">${plantName}</span>
+              </td>`,
+              'border-b border-[#D8DDE6]',
+              true
+            );
+          }).join('') : '';
+
+          return rowHtml(
+            sectGroup,
+            `<td class="px-4 py-2.5 text-[#374151] max-w-xs truncate" title="${escAttr(sectName)}">
+              <span class="inline-block w-14"></span>
+              <button type="button" class="inline-flex items-center gap-2 hover:text-[#2563EB] cursor-pointer" onclick="toggleSummarySect('${escAttr(sectKey)}')" aria-expanded="${isSectOpen}">
+                <span class="inline-block w-4 text-[#4B5563]">${sectIcon}</span><span class="text-[#4B5563]">แผนก</span>
+                <span class="${sectNameClass} ml-1">${sectName}</span>
+              </button>
+            </td>`,
+            'border-b border-[#D8DDE6]',
+            isDeptOpen && !hasExpandedSectInDept
+          ) + plantRows;
+        }).join('') : '';
+
+        return rowHtml(
+          deptGroup,
+          `<td class="px-4 py-2.5 text-[#374151] max-w-xs truncate" title="${escAttr(deptName)}">
+            <span class="inline-block w-4"></span>
+            <button type="button" class="inline-flex items-center gap-2 hover:text-[#2563EB] cursor-pointer" onclick="toggleSummaryDept('${escAttr(deptKey)}')" aria-expanded="${isDeptOpen}">
+              <span class="inline-block w-4 text-[#4B5563]">${deptIcon}</span><span class="text-[#4B5563]">ภาค</span>
+              <span class="${deptNameClass} ml-1">${deptName}</span>
+            </button>
+          </td>`,
+          'border-b border-[#D8DDE6]',
+          isDivOpen && !hasExpandedDeptInDiv
+        ) + sectRows;
+      }).join('') : '';
+
+      return rowHtml(
+        g,
+        `<td class="px-4 py-2.5 font-semibold text-[#111827] max-w-xs truncate" title="${escAttr(name)}">
+          <button type="button" class="inline-flex items-center gap-2 hover:text-[#2563EB] cursor-pointer" onclick="toggleSummaryDivision('${escAttr(name)}')" aria-expanded="${isDivOpen}">
+            <span class="inline-block w-4 text-[#4B5563]">${divIcon}</span><span>${name}</span>
+          </button>
+        </td>`,
+        'border-b border-[#D8DDE6] bg-white'
+      ) + deptRows;
+    }).join('');
+    return;
+  }
+
+  const rows = sortGroups(Object.entries(aggregateBy(groupFn)));
+  document.getElementById('summary-table').innerHTML = rows.map(([name, g]) => rowHtml(
+    g,
+    `<td class="px-4 py-2.5 font-medium text-[#111827] max-w-xs truncate" title="${escAttr(name)}">${name}</td>`,
+    'border-b border-[#D8DDE6] bg-white'
+  )).join('');
+}
+
+function formatDateSearch(dateStr) {
+  const v = (dateStr || '').trim().replace(/^'+|'+$/g, '');
+  if (!v) return '';
+  // Format: YYYY-MM-DD HH:MM:SS.mmm
+  let m = v.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (m) {
+    const d = m[3], mo = m[2], y = m[1];
+    return `${d}/${mo}/${y} ${d}-${mo}-${y} ${Number(d)}/${mo}/${y}`;
+  }
+  // Format: DD/MM/YYYY HH:MM
+  m = v.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+  if (m) {
+    const d = String(m[1]).padStart(2, '0');
+    const mo = String(m[2]).padStart(2, '0');
+    const y = m[3];
+    return `${d}/${mo}/${y} ${d}-${mo}-${y} ${m[1]}/${m[2]}/${y}`;
+  }
+  return (dateStr || '').toLowerCase();
+}
+
+function formatDateYYYYMMDD(dateStr) {
+  const v = (dateStr || '').trim().replace(/^'+|'+$/g, '');
+  if (!v) return '';
+  // Format: YYYY-MM-DD HH:MM:SS.mmm
+  let m = v.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (m) return `${m[1]}/${m[2]}/${m[3]}`;
+  // Format: DD/MM/YYYY HH:MM
+  m = v.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+  if (m) {
+    const d = String(m[1]).padStart(2, '0');
+    const mo = String(m[2]).padStart(2, '0');
+    return `${m[3]}/${mo}/${d}`;
+  }
+  return dateStr || '';
+}
+
+function filterDetailData(data) {
+  const raw = state.detailSearch.trim().toLowerCase();
+  if (!raw) return data;
+  const terms = raw.split(',').map(s => s.trim().replace(/\//g, '-')).filter(Boolean);
+  return data.filter(r => {
+    const text = [
+      r[FDPNO], formatDateSearch(r[FDPDATE]).replace(/\//g, '-'), DV[r[FDV]], DE[r[FDE]], PL[r[FPL]],
+      CU[r[FCU]], SI[r[FSI]], r[FDOC]
+    ].map(v => (v || '').toString().trim().toLowerCase()).join(' ');
+    return terms.every(term => text.includes(term));
+  });
+}
+
+function renderDetailTable(data) {
+  const totalPages = Math.max(1, Math.ceil(data.length / DETAIL_PAGE_SIZE));
+  detailPage = Math.min(detailPage, totalPages);
+  const start = (detailPage - 1) * DETAIL_PAGE_SIZE;
+  const pageRows = data.slice(start, start + DETAIL_PAGE_SIZE);
+  document.getElementById('detail-meta').textContent = `${fmt(data.length)} รายการ`;
+  document.getElementById('detail-page-info').textContent = `หน้า ${fmt(detailPage)}/${fmt(totalPages)}`;
+  document.getElementById('detail-prev').disabled = detailPage <= 1;
+  document.getElementById('detail-next').disabled = detailPage >= totalPages;
+
+  document.getElementById('detail-table').innerHTML = pageRows.map(r => {
+    const isSigned = r[FDS] !== null && r[FDS] !== undefined;
+    const useScanText = r[FGR] === 1;
+    const statusClass = isSigned
+      ? 'bg-[#F5F6F8] text-[#047857]'
+      : 'bg-[#F5F6F8] text-[#B91C1C]';
+    const days = isSigned ? r[FDS] : r[FDU];
+    return `<tr class="border-b border-[#D8DDE6]">
+      <td class="px-4 py-2.5 font-medium text-[#111827] tabular-nums whitespace-nowrap border-r border-[#D8DDE6]">${r[FDPNO] || ''}</td>
+      <td class="px-4 py-2.5 text-[#374151] whitespace-nowrap border-r border-[#D8DDE6]">${formatDateYYYYMMDD(r[FDPDATE])}</td>
+      <td class="px-4 py-2.5 text-[#374151] whitespace-nowrap border-r border-[#D8DDE6]">${DV[r[FDV]] || ''}</td>
+      <td class="px-4 py-2.5 text-[#374151] whitespace-nowrap border-r border-[#D8DDE6]">${DE[r[FDE]] || ''}</td>
+      <td class="px-4 py-2.5 text-[#374151] whitespace-nowrap border-r border-[#D8DDE6]">${PL[r[FPL]] || ''}</td>
+      <td class="px-4 py-2.5 text-[#374151] max-w-xs truncate border-r border-[#D8DDE6]" title="${CU[r[FCU]] || ''}">${CU[r[FCU]] || ''}</td>
+      <td class="px-4 py-2.5 text-[#374151] max-w-xs truncate border-r border-[#D8DDE6]" title="${SI[r[FSI]] || ''}">${SI[r[FSI]] || ''}</td>
+      <td class="px-4 py-2.5 text-[#374151] whitespace-nowrap border-r border-[#D8DDE6]">${r[FDOC] || ''}</td>
+      <td class="px-4 py-2.5 text-right text-[#374151] tabular-nums border-r border-[#D8DDE6]">${fmtQty(r[FQTY])}</td>
+      <td class="px-4 py-2.5 border-r border-[#D8DDE6]"><span class="px-2 py-1 rounded-full text-xs font-semibold whitespace-nowrap ${statusClass}">${isSigned ? (useScanText ? 'สแกนแล้ว' : 'ลงนามแล้ว') : (useScanText ? 'ยังไม่สแกน' : 'ยังไม่ลงนาม')}</span></td>
+      <td class="px-4 py-2.5 text-right text-[#374151] tabular-nums">${days === null || days === undefined ? '—' : days}</td>
+    </tr>`;
+  }).join('') || `<tr><td colspan="11" class="px-4 py-6 text-center text-[#4B5563]">ไม่พบข้อมูล</td></tr>`;
+}
+
+// ─── Events ───────────────────────────────────────────────────────────────────
+document.getElementById('f-div').addEventListener('change', e => {
+  state.div = e.target.value;
+  state.dept = ''; state.sect = ''; state.plant = '';
+  ['f-dept','f-sect','f-plant'].forEach(id => document.getElementById(id).value = '');
+  refreshDeptOptions(); refreshSectOptions(); refreshPlantOptions(); updateAll();
+});
+document.getElementById('f-dept').addEventListener('change', e => {
+  state.dept = e.target.value; state.sect = ''; state.plant = '';
+  ['f-sect','f-plant'].forEach(id => document.getElementById(id).value = '');
+  refreshSectOptions(); refreshPlantOptions(); updateAll();
+});
+document.getElementById('f-sect').addEventListener('change', e => {
+  state.sect = e.target.value; state.plant = '';
+  document.getElementById('f-plant').value = '';
+  refreshPlantOptions(); updateAll();
+});
+document.getElementById('f-plant').addEventListener('change', e => { state.plant = e.target.value; updateAll(); });
+document.getElementById('f-cust').addEventListener('change',  e => { state.cust  = e.target.value; updateAll(); });
+
+document.getElementById('f-site').addEventListener('change', e => {
+  state.site = e.target.value;
+  updateAll();
+});
+document.getElementById('clear-site').addEventListener('click', () => {
+  document.getElementById('f-site').value = ''; state.site = ''; updateAll();
+});
+document.querySelectorAll('.grp-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.grp-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    state.grp = btn.dataset.grp;
+    updateAll();
+  });
+});
+
+document.getElementById('detail-prev').addEventListener('click', () => {
+  if (detailPage <= 1) return;
+  detailPage--;
+  renderDetailTable(filterDetailData(getFiltered()));
+});
+
+document.getElementById('detail-next').addEventListener('click', () => {
+  const detailData = filterDetailData(getFiltered());
+  const totalPages = Math.max(1, Math.ceil(detailData.length / DETAIL_PAGE_SIZE));
+  if (detailPage >= totalPages) return;
+  detailPage++;
+  renderDetailTable(detailData);
+});
+
+let detailSearchTimer;
+document.getElementById('detail-search').addEventListener('input', e => {
+  clearTimeout(detailSearchTimer);
+  detailSearchTimer = setTimeout(() => {
+    state.detailSearch = e.target.value;
+    detailPage = 1;
+    renderDetailTable(filterDetailData(getFiltered()));
+  }, 300);
+});
+
+let dateFromTimer, dateToTimer;
+document.getElementById('f-date-from').addEventListener('input', e => {
+  clearTimeout(dateFromTimer);
+  dateFromTimer = setTimeout(() => { state.dateFrom = e.target.value; updateAll(); }, 400);
+});
+document.getElementById('f-date-to').addEventListener('input', e => {
+  clearTimeout(dateToTimer);
+  dateToTimer = setTimeout(() => { state.dateTo = e.target.value; updateAll(); }, 400);
+});
+document.getElementById('clear-date').addEventListener('click', () => {
+  document.getElementById('f-date-from').value = '';
+  document.getElementById('f-date-to').value = '';
+  state.dateFrom = '';
+  state.dateTo = '';
+  updateAll();
+});
+
+// ─── Boot ─────────────────────────────────────────────────────────────────────
+// Horizontal Summary Card click handlers
+document.querySelectorAll('.hsc-row').forEach(row => {
+  row.addEventListener('click', () => {
+    const cust = row.dataset.customer;
+    if (cust) {
+      window._kpiSelectedCust = cust;
+      window._kpiSelectedSite = null;
+      renderDoughnut(cust);
+      updateKpiCards(getFiltered());
+    }
+  });
+});
+
+// Month selector
+const MONTH_PATHS = {
+  '2026-03': 'edp_data_by_month_update/edp_data_2026-03.csv',
+  '2026-04': 'edp_data_by_month_update/edp_data_2026-04.csv'
+};
+
+function setMonthDateRange(month) {
+  const [year, mm] = month.split('-');
+  const y = parseInt(year, 10);
+  const m = parseInt(mm, 10);
+  const lastDay = new Date(y, m, 0).getDate();
+  const fromStr = `01/${String(m).padStart(2, '0')}/${y + 543}`;
+  const toStr = `${String(lastDay).padStart(2, '0')}/${String(m).padStart(2, '0')}/${y + 543}`;
+  document.getElementById('f-date-from').value = fromStr;
+  document.getElementById('f-date-to').value = toStr;
+  state.dateFrom = fromStr;
+  state.dateTo = toStr;
+}
+
+document.getElementById('f-month').addEventListener('change', e => {
+  state.month = e.target.value;
+  setMonthDateRange(state.month);
+  updateAll();
+});
+
+window.addEventListener('load', () => {
+  if (!MONTH_PATHS[state.month]) {
+    state.month = '2026-03';
+    document.getElementById('f-month').value = '2026-03';
+  }
+  setMonthDateRange(state.month);
+  window.loadCsvData(Object.values(MONTH_PATHS));
+  refreshData();
+  initFilters();
+  updateAll();
+  document.getElementById('loading').style.display = 'none';
+});
+</script>
+
+
+</body></html>
